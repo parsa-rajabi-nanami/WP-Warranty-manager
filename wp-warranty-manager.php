@@ -1,295 +1,134 @@
 <?php
-
 /**
-
  * Plugin Name: WP Warranty Manager
-
- * Plugin URI: https://par30shop.com/
-
+ * Plugin URI: https://github.com/parsa-rajabi-nanami/WP-Warranty-manager
  * Description: افزونه حرفه‌ای مدیریت و فعال‌سازی گارانتی محصولات با قابلیت درون‌ریزی CSV، پنل مدیریت، شورتکد و ثبت تاریخ فعال‌سازی. [warranty_form]
-
  * Version: 1.0.0
-
  * Author: Parsa Rajabi
-
- * License: GPL2
-
+ * License: MIT
  * Text Domain: wp-warranty-manager
-
  */
 
 
-
 if (!defined('ABSPATH')) {
-
     exit;
-
 }
 
 class WP_Warranty_Manager
-
 {
-
-
-
     private $table_name;
 
-
-
     public function __construct()
-
     {
-
         global $wpdb;
-
         $this->table_name = $wpdb->prefix . 'warranty_codes';
-
-
-
         register_activation_hook(__FILE__, [$this, 'create_table']);
-
-
-
         add_action('admin_menu', [$this, 'admin_menu']);
-
         add_action('admin_post_import_warranty_csv', [$this, 'import_csv']);
-
         add_shortcode('warranty_form', [$this, 'render_warranty_form']);
-
-
-
         add_action('wp_enqueue_scripts', [$this, 'enqueue_assets']);
-
-
-
         add_action('wp_ajax_wp_activate_warranty', [$this, 'ajax_activate_warranty']);
-
         add_action('wp_ajax_nopriv_wp_activate_warranty', [$this, 'ajax_activate_warranty']);
-
     }
 
-
-
     /**
-
      * ساخت جدول دیتابیس
-
      */
-
     public function create_table()
-
     {
-
         global $wpdb;
-
-
-
         $charset_collate = $wpdb->get_charset_collate();
-
-
-
         $sql = "CREATE TABLE {$this->table_name} (
-
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-
             warranty_code VARCHAR(255) NOT NULL,
-
             status VARCHAR(50) DEFAULT 'inactive',
-
             activated_at DATETIME NULL,
-
             expires_at DATETIME NULL,
-
             customer_ip VARCHAR(100) NULL,
-
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-
             PRIMARY KEY (id),
-
             UNIQUE KEY warranty_code (warranty_code)
-
         ) $charset_collate;";
 
-
-
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-
         dbDelta($sql);
-
     }
 
-
-
     /**
-
      * منوی مدیریت
-
      */
-
     public function admin_menu()
-
     {
-
         add_menu_page(
-
             'Warranty Manager',
-
             'Warranty Manager',
-
             'manage_options',
-
             'warranty-manager',
-
             [$this, 'admin_page'],
-
             'dashicons-shield-alt',
-
             26
-
         );
-
     }
 
-
-
     /**
-
      * صفحه مدیریت
-
      */
-
     public function admin_page()
-
     {
-
         global $wpdb;
-
-
-
         $results = $wpdb->get_results("SELECT * FROM {$this->table_name} ORDER BY id DESC");
-
-
-
         ?>
 
         <div class="wrap">
-
             <h1>مدیریت گارانتی</h1>
-
-
-
             <hr>
-
-
-
             <h2>درون‌ریزی فایل CSV</h2>
-
-
-
             <form method="post" enctype="multipart/form-data" action="<?php echo admin_url('admin-post.php'); ?>">
-
                 <input type="hidden" name="action" value="import_warranty_csv">
-
-
-
                 <?php wp_nonce_field('import_warranty_csv_nonce'); ?>
-
-
-
                 <input type="file" name="csv_file" accept=".csv" required>
-
-
-
                 <?php submit_button('آپلود CSV'); ?>
-
             </form>
-
-
-
             <hr>
-
-
-
             <h2>لیست کدهای گارانتی</h2>
-
-
-
             <table class="widefat striped">
-
                 <thead>
-
                     <tr>
-
                         <th>ID</th>
-
                         <th>کد گارانتی</th>
-
                         <th>وضعیت</th>
-
                         <th>تاریخ فعال‌سازی</th>
-
                         <th>تاریخ انقضا</th>
-
                         <th>IP کاربر</th>
-
                     </tr>
-
                 </thead>
-
                 <tbody>
-
                     <?php if (!empty($results)): ?>
-
                         <?php foreach ($results as $row): ?>
-
                             <tr>
-
                                 <td><?php echo esc_html($row->id); ?></td>
-
                                 <td><?php echo esc_html($row->warranty_code); ?></td>
-
                                 <td>
-
                                     <?php if ($row->status === 'active'): ?>
-
                                         <span style="color:green;font-weight:bold;">فعال</span>
-
                                     <?php else: ?>
-
                                         <span style="color:red;font-weight:bold;">غیرفعال</span>
-
                                     <?php endif; ?>
-
                                 </td>
-
                                 <td><?php echo esc_html($row->activated_at); ?></td>
-
                                 <td><?php echo esc_html($row->expires_at); ?></td>
-
                                 <td><?php echo esc_html($row->customer_ip); ?></td>
-
                             </tr>
-
                         <?php endforeach; ?>
-
                     <?php else: ?>
-
                         <tr>
-
                             <td colspan="6">هیچ کدی ثبت نشده است.</td>
-
                         </tr>
-
                     <?php endif; ?>
-
                 </tbody>
-
             </table>
-
         </div>
-
         <?php
-
     }
 
 
