@@ -1,99 +1,191 @@
-# WordPress Plugin Boilerplate
+# Warranty Management System for WordPress
 
-A standardized, organized, object-oriented foundation for building high-quality WordPress Plugins.
+A complete WordPress plugin for managing, activating, and verifying product warranty codes.
 
-## Contents
+## Overview
 
-The WordPress Plugin Boilerplate includes the following files:
+Warranty Management System is a WordPress plugin designed to simplify the management of product warranty codes. Administrators can import warranty codes in bulk through CSV files, while customers can activate their warranties or check warranty status directly from the website.
 
-* `.gitignore`. Used to exclude certain files from the repository.
-* `CHANGELOG.md`. The list of changes to the core project.
-* `README.md`. The file that you’re currently reading.
-* A `plugin-name` directory that contains the source code - a fully executable WordPress plugin.
+The plugin provides a centralized system for tracking warranty activations, expiration dates, and customer information.
+
+---
 
 ## Features
 
-* The Boilerplate is based on the [Plugin API](http://codex.wordpress.org/Plugin_API), [Coding Standards](http://codex.wordpress.org/WordPress_Coding_Standards), and [Documentation Standards](https://make.wordpress.org/core/handbook/best-practices/inline-documentation-standards/php/).
-* All classes, functions, and variables are documented so that you know what you need to change.
-* The Boilerplate uses a strict file organization scheme that corresponds both to the WordPress Plugin Repository structure, and that makes it easy to organize the files that compose the plugin.
-* The project includes a `.pot` file as a starting point for internationalization.
+### Admin Features
+
+* Import unlimited warranty codes using CSV files.
+* Bulk management of warranty codes.
+* View all warranty records and activation history.
+* Search and filter warranty codes.
+* Monitor active, inactive, and expired warranties.
+* Set warranty duration and validity periods.
+* Export warranty data when needed.
+* Secure management dashboard within WordPress Admin.
+
+### Customer Features
+
+* Activate warranty by entering a valid warranty code.
+* Check warranty status instantly.
+* View activation date and warranty expiration date.
+* Receive validation messages for invalid, expired, or already activated codes.
+* Mobile-friendly warranty activation and inquiry forms.
+
+---
+
+## How It Works
+
+### 1. Import Warranty Codes
+
+Administrators can upload a CSV file containing warranty codes from the WordPress dashboard.
+
+Example CSV format:
+
+| warranty_code |
+| ------------- |
+| ABC123456     |
+| XYZ987654     |
+| TEST112233    |
+
+### 2. Warranty Activation
+
+Customers enter their warranty code through the activation form.
+
+The system will:
+
+* Validate the code.
+* Check whether the code exists.
+* Verify that it has not already been activated.
+* Register the activation date.
+* Calculate the expiration date based on the configured warranty period.
+
+### 3. Warranty Verification
+
+Customers can enter their warranty code at any time to view:
+
+* Warranty status
+* Activation date
+* Expiration date
+* Remaining validity period
+
+---
 
 ## Installation
 
-The Boilerplate can be installed directly into your plugins folder "as-is". You will want to rename it and the classes inside of it to fit your needs. For example, if your plugin is named 'example-me' then:
+### Automatic Installation
 
-* rename files from `plugin-name` to `example-me`
-* change `plugin_name` to `example_me`
-* change `plugin-name` to `example-me`
-* change `Plugin_Name` to `Example_Me`
-* change `PLUGIN_NAME_` to `EXAMPLE_ME_`
+1. Upload the plugin through the WordPress Plugins screen.
+2. Activate the plugin.
+3. Navigate to the Warranty Management menu in the WordPress dashboard.
+4. Configure plugin settings.
+5. Import warranty codes using a CSV file.
 
-It's safe to activate the plugin at this point. Because the Boilerplate has no real functionality there will be no menu items, meta boxes, or custom post types added until you write the code.
+### Manual Installation
 
-## WordPress.org Preparation
+1. Upload the plugin files to:
 
-The original launch of this version of the boilerplate included the folder structure needed for using your plugin on WordPress.org. That folder structure has been moved to its own repo here: https://github.com/DevinVinson/Plugin-Directory-Boilerplate
+`/wp-content/plugins/wp-warranty-manager/`
 
-## Recommended Tools
+2. Activate the plugin through the WordPress Plugins menu.
+3. Configure warranty settings.
+4. Import warranty codes and start using the system.
 
-### i18n Tools
+---
 
-The WordPress Plugin Boilerplate uses a variable to store the text domain used when internationalizing strings throughout the Boilerplate. To take advantage of this method, there are tools that are recommended for providing correct, translatable files:
+## Shortcodes
 
-* [Poedit](http://www.poedit.net/)
-* [makepot](http://i18n.svn.wordpress.org/tools/trunk/)
-* [i18n](https://github.com/grappler/i18n)
+### Combined Form
 
-Any of the above tools should provide you with the proper tooling to internationalize the plugin.
+```text
+[warranty_form]
+```
+
+Displays activation and inquiry functionality in a single interface.
+
+---
+
+## CSV Import Requirements
+
+The CSV file must contain at least one column:
+
+```csv
+warranty_code
+ABC123456
+XYZ987654
+TEST112233
+```
+
+Optional fields:
+
+```csv
+warranty_code,product_name,warranty_period
+ABC123456,Product A,12
+XYZ987654,Product B,24
+```
+
+Where:
+
+* `warranty_code` = Unique warranty code
+* `product_name` = Product name
+* `warranty_period` = Warranty duration in months
+
+---
+
+## Warranty Statuses
+
+| Status    | Description                            |
+| --------- | -------------------------------------- |
+| Available | Code exists and has not been activated |
+| Activated | Warranty is active                     |
+| Expired   | Warranty period has ended              |
+| Invalid   | Warranty code does not exist           |
+
+---
+
+## Security Features
+
+* WordPress nonce verification.
+* Sanitization and validation of user inputs.
+* Protected CSV upload process.
+* Role and capability checks for administrators.
+* SQL injection protection using WordPress standards.
+
+---
+
+## Technical Requirements
+
+* WordPress 6.0 or higher
+* PHP 8.0 or higher
+* MySQL 5.7+ / MariaDB equivalent
+
+---
 
 ## License
 
-The WordPress Plugin Boilerplate is licensed under the GPL v2 or later.
+MIT License
 
-> This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License, version 2, as published by the Free Software Foundation.
+Copyright (c) 2026 parsa rajabi
 
-> This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-> You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-A copy of the license is included in the root of the plugin’s directory. The file is named `LICENSE`.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
-## Important Notes
+---
 
-### Licensing
+## Support
 
-The WordPress Plugin Boilerplate is licensed under the GPL v2 or later; however, if you opt to use third-party code that is not compatible with v2, then you may need to switch to using code that is GPL v3 compatible.
-
-For reference, [here's a discussion](http://make.wordpress.org/themes/2013/03/04/licensing-note-apache-and-gpl/) that covers the Apache 2.0 License used by [Bootstrap](http://twitter.github.io/bootstrap/).
-
-### Includes
-
-Note that if you include your own classes, or third-party libraries, there are three locations in which said files may go:
-
-* `plugin-name/includes` is where functionality shared between the admin area and the public-facing parts of the site reside
-* `plugin-name/admin` is for all admin-specific functionality
-* `plugin-name/public` is for all public-facing functionality
-
-Note that previous versions of the Boilerplate did not include `Plugin_Name_Loader` but this class is used to register all filters and actions with WordPress.
-
-The example code provided shows how to register your hooks with the Loader class.
-
-### What About Other Features?
-
-The previous version of the WordPress Plugin Boilerplate included support for a number of different projects such as the [GitHub Updater](https://github.com/afragen/github-updater).
-
-These tools are not part of the core of this Boilerplate, as I see them as being additions, forks, or other contributions to the Boilerplate.
-
-The same is true of using tools like Grunt, Composer, etc. These are all fantastic tools, but not everyone uses them. In order to  keep the core Boilerplate as light as possible, these features have been removed and will be introduced in other editions, and will be listed and maintained on the project homepage.
-
-# Credits
-
-The WordPress Plugin Boilerplate was started in 2011 by [Tom McFarlin](http://twitter.com/tommcfarlin/) and has since included a number of great contributions. In March of 2015 the project was handed over by Tom to Devin Vinson.
-
-The current version of the Boilerplate was developed in conjunction with [Josh Eaton](https://twitter.com/jjeaton), [Ulrich Pogson](https://twitter.com/grapplerulrich), and [Brad Vincent](https://twitter.com/themergency).
-
-The homepage is based on a design as provided by [HTML5Up](http://html5up.net), the Boilerplate logo was designed by Rob McCaskill of [BungaWeb](http://bungaweb.com), and the site `favicon` was created by [Mickey Kay](https://twitter.com/McGuive7).
-
-## Documentation, FAQs, and More
-
-If you’re interested in writing any documentation or creating tutorials please [let me know](http://devinvinson.com/contact/) .
+For support, bug reports, feature requests, or documentation updates, please submit an issue through the project's GitHub repository and include a valid issue ID for tracking.
