@@ -20,7 +20,8 @@
  * @subpackage Plugin_Name/includes
  * @author     Your Name <email@example.com>
  */
-class Plugin_Name_Activator {
+class WPWM_Activator
+{
 
 	/**
 	 * Short Description. (use period)
@@ -29,8 +30,11 @@ class Plugin_Name_Activator {
 	 *
 	 * @since    1.0.0
 	 */
-	public static function activate() {
+	public static function activate()
+	{
+		require_once WPWM_PLUGIN_PATH . 'includes/class-database.php';
 
+		$database = new WPWM_Database();
+		$database->create_tables();
 	}
-
 }

@@ -100,4 +100,84 @@ class Plugin_Name_Admin {
 
 	}
 
+
+
+
+	    /**
+     * منوی مدیریت
+     */
+    public function admin_menu()
+    {
+        add_menu_page(
+            'Warranty Manager',
+            'Warranty Manager',
+            'manage_options',
+            'warranty-manager',
+            [$this, 'admin_page'],
+            'dashicons-shield-alt',
+            26
+        );
+    }
+
+    /**
+     * صفحه مدیریت
+     */
+    public function admin_page()
+    {
+        global $wpdb;
+        $results = $wpdb->get_results("SELECT * FROM {$this->table_name} ORDER BY id DESC");
+        ?>
+
+        <div class="wrap">
+            <h1>مدیریت گارانتی</h1>
+            <hr>
+            <h2>درون‌ریزی فایل CSV</h2>
+            <form method="post" enctype="multipart/form-data" action="<?php echo admin_url('admin-post.php'); ?>">
+                <input type="hidden" name="action" value="import_warranty_csv">
+                <?php wp_nonce_field('import_warranty_csv_nonce'); ?>
+                <input type="file" name="csv_file" accept=".csv" required>
+                <?php submit_button('آپلود CSV'); ?>
+            </form>
+            <hr>
+            <h2>لیست کدهای گارانتی</h2>
+            <table class="widefat striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>کد گارانتی</th>
+                        <th>وضعیت</th>
+                        <th>تاریخ فعال‌سازی</th>
+                        <th>تاریخ انقضا</th>
+                        <th>IP کاربر</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($results)): ?>
+                        <?php foreach ($results as $row): ?>
+                            <tr>
+                                <td><?php echo esc_html($row->id); ?></td>
+                                <td><?php echo esc_html($row->warranty_code); ?></td>
+                                <td>
+                                    <?php if ($row->status === 'active'): ?>
+                                        <span style="color:green;font-weight:bold;">فعال</span>
+                                    <?php else: ?>
+                                        <span style="color:red;font-weight:bold;">غیرفعال</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td><?php echo esc_html($row->activated_at); ?></td>
+                                <td><?php echo esc_html($row->expires_at); ?></td>
+                                <td><?php echo esc_html($row->customer_ip); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="6">هیچ کدی ثبت نشده است.</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php
+    }
+
 }

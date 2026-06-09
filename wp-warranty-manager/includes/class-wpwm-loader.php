@@ -3,11 +3,11 @@
 /**
  * Register all actions and filters for the plugin
  *
- * @link       http://example.com
+ * @link       https://github.com/parsa-rajabi-nanami/WP-Warranty-manager
  * @since      1.0.0
  *
- * @package    Plugin_Name
- * @subpackage Plugin_Name/includes
+ * @package    WP_Warranty_Manager
+ * @subpackage WP_Warranty_Manager/includes
  */
 
 /**
@@ -17,11 +17,11 @@
  * the plugin, and register them with the WordPress API. Call the
  * run function to execute the list of actions and filters.
  *
- * @package    Plugin_Name
- * @subpackage Plugin_Name/includes
- * @author     Your Name <email@example.com>
+ * @package    WP_Warranty_Manager
+ * @subpackage WP_Warranty_Manager/includes
+ * @author     Parsa Rajabi
  */
-class Plugin_Name_Loader {
+class WPWM_Loader {
 
 	/**
 	 * The array of actions registered with WordPress.

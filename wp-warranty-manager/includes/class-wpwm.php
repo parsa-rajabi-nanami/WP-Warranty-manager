@@ -6,11 +6,11 @@
  * A class definition that includes attributes and functions used across both the
  * public-facing side of the site and the admin area.
  *
- * @link       http://example.com
+ * @link       https://github.com/parsa-rajabi-nanami/WP-Warranty-manager
  * @since      1.0.0
  *
- * @package    Plugin_Name
- * @subpackage Plugin_Name/includes
+ * @package    WP_Warranty_Manager
+ * @subpackage WP_Warranty_Manager/includes
  */
 
 /**
@@ -23,11 +23,13 @@
  * version of the plugin.
  *
  * @since      1.0.0
- * @package    Plugin_Name
- * @subpackage Plugin_Name/includes
- * @author     Your Name <email@example.com>
+ * @package    WP_Warranty_Manager
+ * @subpackage WP_Warranty_Manager/includes
+ * @author     Parsa Rajabi
  */
-class Plugin_Name {
+
+class WP_Warranty_Manager
+{
 
 	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power
@@ -66,19 +68,22 @@ class Plugin_Name {
 	 *
 	 * @since    1.0.0
 	 */
-	public function __construct() {
-		if ( defined( 'PLUGIN_NAME_VERSION' ) ) {
-			$this->version = PLUGIN_NAME_VERSION;
+	public function __construct()
+	{
+		if (defined('WPWM_VERSION')) {
+			$this->version = WPWM_VERSION;
 		} else {
 			$this->version = '1.0.0';
 		}
-		$this->plugin_name = 'plugin-name';
+		$this->plugin_name = 'wp-warranty-manager';
 
 		$this->load_dependencies();
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
-
+		$this->define_ajax_hooks();
+		$this->define_shortcode_hooks();
+		$this->define_csv_hooks();
 	}
 
 	/**
@@ -97,33 +102,39 @@ class Plugin_Name {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function load_dependencies() {
+	private function load_dependencies()
+	{
 
 		/**
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-plugin-name-loader.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wpwm-loader.php';
 
 		/**
 		 * The class responsible for defining internationalization functionality
 		 * of the plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-plugin-name-i18n.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wpwm-i18n.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-plugin-name-admin.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-wpwm-admin.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-plugin-name-public.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/class-wpwm-public.php';
 
-		$this->loader = new Plugin_Name_Loader();
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wpwm-ajax.php';
 
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wpwm-shortcodes.php';
+
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wpwm-csv-importer.php';
+
+		$this->loader = new WPWM_Loader();
 	}
 
 	/**
@@ -135,12 +146,12 @@ class Plugin_Name {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function set_locale() {
+	private function set_locale()
+	{
 
-		$plugin_i18n = new Plugin_Name_i18n();
+		$plugin_i18n = new WPWM_i18n();
 
-		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
-
+		$this->loader->add_action('plugins_loaded', $plugin_i18n, 'load_plugin_textdomain');
 	}
 
 	/**
@@ -150,13 +161,14 @@ class Plugin_Name {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function define_admin_hooks() {
+	private function define_admin_hooks()
+	{
 
-		$plugin_admin = new Plugin_Name_Admin( $this->get_plugin_name(), $this->get_version() );
+		$plugin_admin = new WPWM_Admin($this->get_plugin_name(), $this->get_version());
 
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-
+		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
+		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
+		$this->loader->add_action('admin_menu', $plugin_admin, 'admin_menu');
 	}
 
 	/**
@@ -166,13 +178,76 @@ class Plugin_Name {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function define_public_hooks() {
+	private function define_public_hooks()
+	{
+		$plugin_public = new WPWM_Public($this->get_plugin_name(), $this->get_version());
 
-		$plugin_public = new Plugin_Name_Public( $this->get_plugin_name(), $this->get_version() );
+		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
+		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
+	}
 
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 
+	private function define_ajax_hooks()
+	{
+		$plugin_ajax = new WPWM_Ajax();
+
+		$this->loader->add_action(
+			'wp_ajax_wp_activate_warranty',
+			$plugin_ajax,
+			'activate_warranty'
+		);
+
+		$this->loader->add_action(
+			'wp_ajax_nopriv_wp_activate_warranty',
+			$plugin_ajax,
+			'activate_warranty'
+		);
+	}
+
+
+	private function define_shortcode_hooks()
+	{
+		$plugin_shortcode = new WPWM_Shortcodes();
+
+		$this->loader->add_action(
+			'init',
+			$plugin_shortcode,
+			'register_shortcode'
+		);
+	}
+
+
+	private function define_csv_hooks()
+	{
+		$plugin_csv = new WPWM_CSV_Importer();
+
+		$this->loader->add_action(
+			'admin_post_import_warranty_csv',
+			$plugin_csv,
+			'import'
+		);
+	}
+
+	/**
+
+	 * فرم فعال‌سازی
+
+	 */
+	public function render_warranty_form()
+	{
+		ob_start();
+?>
+		<div class="wp-warranty-box">
+			<form id="wp-warranty-form">
+				<input type="text" name="warranty_code" placeholder="کد گارانتی را وارد کنید" required>
+				<button type="submit">
+					فعال‌سازی گارانتی
+				</button>
+			</form>
+			<div class="wp-warranty-message"></div>
+		</div>
+<?php
+		return ob_get_clean();
 	}
 
 	/**
@@ -180,7 +255,8 @@ class Plugin_Name {
 	 *
 	 * @since    1.0.0
 	 */
-	public function run() {
+	public function run()
+	{
 		$this->loader->run();
 	}
 
@@ -191,7 +267,8 @@ class Plugin_Name {
 	 * @since     1.0.0
 	 * @return    string    The name of the plugin.
 	 */
-	public function get_plugin_name() {
+	public function get_plugin_name()
+	{
 		return $this->plugin_name;
 	}
 
@@ -201,7 +278,8 @@ class Plugin_Name {
 	 * @since     1.0.0
 	 * @return    Plugin_Name_Loader    Orchestrates the hooks of the plugin.
 	 */
-	public function get_loader() {
+	public function get_loader()
+	{
 		return $this->loader;
 	}
 
@@ -211,8 +289,8 @@ class Plugin_Name {
 	 * @since     1.0.0
 	 * @return    string    The version number of the plugin.
 	 */
-	public function get_version() {
+	public function get_version()
+	{
 		return $this->version;
 	}
-
 }
