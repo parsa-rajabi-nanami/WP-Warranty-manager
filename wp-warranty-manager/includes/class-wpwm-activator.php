@@ -3,11 +3,11 @@
 /**
  * Fired during plugin activation
  *
- * @link       http://example.com
+ * @link       https://github.com/parsa-rajabi-nanami/WP-Warranty-manager
  * @since      1.0.0
  *
- * @package    Plugin_Name
- * @subpackage Plugin_Name/includes
+ * @package    WP_Warranty_Manager
+ * @subpackage WP_Warranty_Manager/includes
  */
 
 /**
@@ -16,23 +16,29 @@
  * This class defines all code necessary to run during the plugin's activation.
  *
  * @since      1.0.0
- * @package    Plugin_Name
- * @subpackage Plugin_Name/includes
- * @author     Your Name <email@example.com>
+ * @package    WP_Warranty_Manager
+ * @subpackage WP_Warranty_Manager/includes
+ * @author     Parsa Rajabi
  */
+if (!defined('ABSPATH')) {
+	exit;
+}
+
 class WPWM_Activator
 {
 
 	/**
-	 * Short Description. (use period)
+	 * Run all activation routines.
 	 *
-	 * Long Description.
+	 * Loads the database class and creates the required tables.
+	 * Called by register_activation_hook() in the main plugin file.
 	 *
-	 * @since    1.0.0
+	 * @since  1.0.0
+	 * @return void
 	 */
 	public static function activate()
 	{
-		require_once WPWM_PLUGIN_PATH . 'includes/class-database.php';
+		require_once WPWM_PLUGIN_PATH . 'includes/class-wpwm-database.php';
 
 		$database = new WPWM_Database();
 		$database->create_tables();

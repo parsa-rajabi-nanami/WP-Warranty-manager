@@ -12,6 +12,9 @@
  * @package    WP_Warranty_Manager
  * @subpackage WP_Warranty_Manager/includes
  */
+if (!defined('ABSPATH')) {
+	exit;
+}
 
 /**
  * Define the internationalization functionality.
@@ -24,24 +27,20 @@
  * @subpackage WP_Warranty_Manager/includes
  * @author     Parsa Rajabi
  */
-class WPWM_i18n {
-
-
+class WPWM_i18n
+{
 	/**
 	 * Load the plugin text domain for translation.
 	 *
 	 * @since    1.0.0
 	 */
-	public function load_plugin_textdomain() {
+	public function load_plugin_textdomain()
+	{
 
 		load_plugin_textdomain(
 			'wp-warranty-manager',
 			false,
-			dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
+			dirname(dirname(plugin_basename(__FILE__))) . '/languages/'
 		);
-
 	}
-
-
-
 }

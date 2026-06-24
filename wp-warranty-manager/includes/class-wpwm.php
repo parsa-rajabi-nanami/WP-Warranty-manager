@@ -37,7 +37,7 @@ class WP_Warranty_Manager
 	 *
 	 * @since    1.0.0
 	 * @access   protected
-	 * @var      Plugin_Name_Loader    $loader    Maintains and registers all hooks for the plugin.
+	 * @var      WPWM_Loader    $loader    Maintains and registers all hooks for the plugin.
 	 */
 	protected $loader;
 
@@ -91,10 +91,10 @@ class WP_Warranty_Manager
 	 *
 	 * Include the following files that make up the plugin:
 	 *
-	 * - Plugin_Name_Loader. Orchestrates the hooks of the plugin.
-	 * - Plugin_Name_i18n. Defines internationalization functionality.
-	 * - Plugin_Name_Admin. Defines all hooks for the admin area.
-	 * - Plugin_Name_Public. Defines all hooks for the public side of the site.
+	 * - WPWM_Loader. Orchestrates the hooks of the plugin.
+	 * - WPWM_i18n. Defines internationalization functionality.
+	 * - WPWM_Admin. Defines all hooks for the admin area.
+	 * - WPWM_Name_Public. Defines all hooks for the public side of the site.
 	 *
 	 * Create an instance of the loader which will be used to register the hooks
 	 * with WordPress.
@@ -128,10 +128,19 @@ class WP_Warranty_Manager
 		 */
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/class-wpwm-public.php';
 
+		/**
+		 * The class responsible for handling all AJAX requests.
+		 */
 		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wpwm-ajax.php';
 
+		/**
+		 * The class responsible for registering and rendering plugin shortcodes.
+		 */
 		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wpwm-shortcodes.php';
 
+		/**
+		 * The class responsible for importing warranty codes from CSV files.
+		 */
 		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wpwm-csv-importer.php';
 
 		$this->loader = new WPWM_Loader();
@@ -140,7 +149,7 @@ class WP_Warranty_Manager
 	/**
 	 * Define the locale for this plugin for internationalization.
 	 *
-	 * Uses the Plugin_Name_i18n class in order to set the domain and to register the hook
+	 * Uses the WPWM_i18n class in order to set the domain and to register the hook
 	 * with WordPress.
 	 *
 	 * @since    1.0.0
@@ -156,7 +165,8 @@ class WP_Warranty_Manager
 
 	/**
 	 * Register all of the hooks related to the admin area functionality
-	 * of the plugin.
+	 * of the plugin. Covers admin menus, scripts, styles, and form submission handlers
+	 * for edit and delete actions via admin-post.php.
 	 *
 	 * @since    1.0.0
 	 * @access   private
@@ -169,6 +179,9 @@ class WP_Warranty_Manager
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 		$this->loader->add_action('admin_menu', $plugin_admin, 'admin_menu');
+
+		$this->loader->add_action('admin_post_edit_warranty_code',   $plugin_admin, 'edit_code');
+		$this->loader->add_action('admin_post_delete_warranty_code', $plugin_admin, 'delete_code');
 	}
 
 	/**
@@ -186,7 +199,14 @@ class WP_Warranty_Manager
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
 	}
 
-
+	/**
+	 * Register all AJAX hooks for warranty activation.
+	 *
+	 * Covers both logged-in (wp_ajax) and guest (wp_ajax_nopriv) requests.
+	 *
+	 * @since   1.0.0
+	 * @access  private
+	 */
 	private function define_ajax_hooks()
 	{
 		$plugin_ajax = new WPWM_Ajax();
@@ -204,7 +224,14 @@ class WP_Warranty_Manager
 		);
 	}
 
-
+	/**
+	 * Register shortcode hooks with WordPress.
+	 *
+	 * Registers the [warranty_form] shortcode via the init hook.
+	 *
+	 * @since   1.0.0
+	 * @access  private
+	 */
 	private function define_shortcode_hooks()
 	{
 		$plugin_shortcode = new WPWM_Shortcodes();
@@ -216,7 +243,14 @@ class WP_Warranty_Manager
 		);
 	}
 
-
+	/**
+	 * Register CSV import hooks.
+	 *
+	 * Handles the admin-post action for CSV file uploads.
+	 *
+	 * @since   1.0.0
+	 * @access  private
+	 */
 	private function define_csv_hooks()
 	{
 		$plugin_csv = new WPWM_CSV_Importer();
@@ -226,28 +260,6 @@ class WP_Warranty_Manager
 			$plugin_csv,
 			'import'
 		);
-	}
-
-	/**
-
-	 * فرم فعال‌سازی
-
-	 */
-	public function render_warranty_form()
-	{
-		ob_start();
-?>
-		<div class="wp-warranty-box">
-			<form id="wp-warranty-form">
-				<input type="text" name="warranty_code" placeholder="کد گارانتی را وارد کنید" required>
-				<button type="submit">
-					فعال‌سازی گارانتی
-				</button>
-			</form>
-			<div class="wp-warranty-message"></div>
-		</div>
-<?php
-		return ob_get_clean();
 	}
 
 	/**
@@ -276,7 +288,7 @@ class WP_Warranty_Manager
 	 * The reference to the class that orchestrates the hooks with the plugin.
 	 *
 	 * @since     1.0.0
-	 * @return    Plugin_Name_Loader    Orchestrates the hooks of the plugin.
+	 * @return    WPWM_Loader    Orchestrates the hooks of the plugin.
 	 */
 	public function get_loader()
 	{

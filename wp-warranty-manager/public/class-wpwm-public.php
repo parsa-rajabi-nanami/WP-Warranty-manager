@@ -3,22 +3,19 @@
 /**
  * The public-facing functionality of the plugin.
  *
- * @link       http://example.com
+ * @link       https://github.com/parsa-rajabi-nanami/WP-Warranty-manager
  * @since      1.0.0
  *
- * @package    Plugin_Name
- * @subpackage Plugin_Name/public
+ * @package    WP_Warranty_Manager
+ * @subpackage WP_Warranty_Manager/public
  */
 
 /**
  * The public-facing functionality of the plugin.
  *
- * Defines the plugin name, version, and two examples hooks for how to
- * enqueue the public-facing stylesheet and JavaScript.
- *
- * @package    Plugin_Name
- * @subpackage Plugin_Name/public
- * @author     Your Name <email@example.com>
+ * @package    WP_Warranty_Manager
+ * @subpackage WP_Warranty_Manager/public
+ * @author     Parsa Rajabi
  */
 class Plugin_Name_Public
 {

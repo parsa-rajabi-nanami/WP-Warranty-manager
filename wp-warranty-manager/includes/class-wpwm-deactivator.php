@@ -9,6 +9,9 @@
  * @package    WP_Warranty_Manager
  * @subpackage WP_Warranty_Manager/includes
  */
+if (!defined('ABSPATH')) {
+	exit;
+}
 
 /**
  * Fired during plugin deactivation.
@@ -20,17 +23,19 @@
  * @subpackage WP_Warranty_Manager/includes
  * @author     Parsa Rajabi
  */
-class WPWM_Deactivator {
+class WPWM_Deactivator
+{
 
 	/**
-	 * Short Description. (use period)
+	 * Run all deactivation routines.
 	 *
-	 * Long Description.
+	 * Called by register_deactivation_hook() in the main plugin file.
 	 *
-	 * @since    1.0.0
+	 * @since  1.0.0
+	 * @return void
 	 */
-	public static function deactivate() {
-
+	public static function deactivate()
+	{
+		// No action needed on deactivation.
 	}
-
 }

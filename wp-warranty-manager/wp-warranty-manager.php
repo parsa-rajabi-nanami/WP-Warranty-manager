@@ -26,7 +26,7 @@
  */
 
 // If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
+if (! defined('WPINC')) {
 	die;
 }
 
@@ -42,28 +42,30 @@ define('WPWM_PLUGIN_URL', plugin_dir_url(__FILE__));
  * The code that runs during plugin activation.
  * This action is documented in includes/class-wpwm-activator.php
  */
-function activate_wp_warranty_manager() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpwm-activator.php';
-	Plugin_Name_Activator::activate();
+function activate_wp_warranty_manager()
+{
+	require_once plugin_dir_path(__FILE__) . 'includes/class-wpwm-activator.php';
+	WPWM_Activator::activate();
 }
 
 /**
  * The code that runs during plugin deactivation.
- * This action is documented in includes/class-plugin-name-deactivator.php
+ * This action is documented in includes/class-wpwm-deactivator.php
  */
-function deactivate_wp_warranty_manager() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpwm-deactivator.php';
-	Plugin_Name_Deactivator::deactivate();
+function deactivate_wp_warranty_manager()
+{
+	require_once plugin_dir_path(__FILE__) . 'includes/class-wpwm-deactivator.php';
+	WPWM_Deactivator::deactivate();
 }
 
-register_activation_hook( __FILE__, 'activate_wp_warranty_manager' );
-register_deactivation_hook( __FILE__, 'deactivate_wp_warranty_manager' );
+register_activation_hook(__FILE__, 'activate_wp_warranty_manager');
+register_deactivation_hook(__FILE__, 'deactivate_wp_warranty_manager');
 
 /**
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require plugin_dir_path( __FILE__ ) . 'includes/class-wpwm.php';
+require plugin_dir_path(__FILE__) . 'includes/class-wpwm.php';
 
 /**
  * Begins execution of the plugin.
@@ -74,10 +76,10 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-wpwm.php';
  *
  * @since    1.0.0
  */
-function run_plugin_name() {
+function run_WP_Warranty_Manager()
+{
 
 	$plugin = new WP_Warranty_Manager();
 	$plugin->run();
-
 }
-run_plugin_name();
+run_WP_Warranty_Manager();

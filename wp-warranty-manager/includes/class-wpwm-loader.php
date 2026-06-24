@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Register all actions and filters for the plugin
+ * Register all actions and filters for the plugin.
  *
  * @link       https://github.com/parsa-rajabi-nanami/WP-Warranty-manager
  * @since      1.0.0
@@ -10,13 +10,18 @@
  * @subpackage WP_Warranty_Manager/includes
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 /**
  * Register all actions and filters for the plugin.
  *
- * Maintain a list of all hooks that are registered throughout
- * the plugin, and register them with the WordPress API. Call the
- * run function to execute the list of actions and filters.
+ * Maintains a list of all hooks registered throughout the plugin
+ * and registers them with the WordPress API. Call run() to execute
+ * the list of actions and filters.
  *
+ * @since      1.0.0
  * @package    WP_Warranty_Manager
  * @subpackage WP_Warranty_Manager/includes
  * @author     Parsa Rajabi
