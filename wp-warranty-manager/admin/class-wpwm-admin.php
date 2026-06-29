@@ -257,7 +257,7 @@ class WPWM_Admin {
                 'customer_ip'   => $customer_ip,
             ),
             array( 'id' => $id ),
-            array( '%s', '%s', $activated_at ? '%s' : null, $expires_at ? '%s' : null, '%s' ),
+            array( '%s', '%s', '%s', '%s', '%s' ),
             array( '%d' )
         );
 

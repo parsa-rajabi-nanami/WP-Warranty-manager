@@ -9,6 +9,9 @@
  * @package    WP_Warranty_Manager
  * @subpackage WP_Warranty_Manager/public
  */
+if (!defined('ABSPATH')) {
+	exit;
+}
 
 /**
  * The public-facing functionality of the plugin.
@@ -17,7 +20,7 @@
  * @subpackage WP_Warranty_Manager/public
  * @author     Parsa Rajabi
  */
-class Plugin_Name_Public
+class WPWM_Public
 {
 
 	/**
@@ -64,15 +67,15 @@ class Plugin_Name_Public
 		 * This function is provided for demonstration purposes only.
 		 *
 		 * An instance of this class should be passed to the run() function
-		 * defined in Plugin_Name_Loader as all of the hooks are defined
+		 * defined in WPWM_Loader as all of the hooks are defined
 		 * in that particular class.
 		 *
-		 * The Plugin_Name_Loader will then create the relationship
+		 * The WPWM_Loader will then create the relationship
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
 
-		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/plugin-name-public.css', array(), $this->version, 'all');
+		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/wpwm-public.css', array(), $this->version, 'all');
 	}
 
 	/**
@@ -87,52 +90,27 @@ class Plugin_Name_Public
 		 * This function is provided for demonstration purposes only.
 		 *
 		 * An instance of this class should be passed to the run() function
-		 * defined in Plugin_Name_Loader as all of the hooks are defined
+		 * defined in WPWM_Loader as all of the hooks are defined
 		 * in that particular class.
 		 *
-		 * The Plugin_Name_Loader will then create the relationship
+		 * The WPWM_Loader will then create the relationship
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
 
-		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/plugin-name-public.js', array('jquery'), $this->version, false);
-	}
+		wp_enqueue_script(
+			$this->plugin_name,
+			plugin_dir_url(__FILE__) . 'js/wpwm-public.js',
+			array('jquery'),
+			$this->version,
+			true
+		);
 
-
-	/**
-
-	 * استایل فرم
-
-	 */
-
-	public function enqueue_assets()
-
-	{
-
-		wp_register_style('wp-warranty-style', false);
-
-		wp_enqueue_style('wp-warranty-style');
-
-		
-
-		wp_add_inline_style('wp-warranty-style', $custom_css);
-
-
-
-		wp_enqueue_script('jquery');
-
-		wp_register_script('wp-warranty-script', '', ['jquery'], '1.0', true);
-
-		wp_enqueue_script('wp-warranty-script');
-
-		wp_localize_script('wp-warranty-script', 'wpWarranty', [
-
-			'ajax_url' => admin_url('admin-ajax.php'),
-
-			'nonce' => wp_create_nonce('wp_warranty_ajax_nonce')
-
-		]);
-
-		wp_add_inline_script('wp-warranty-script', $custom_js);
+		wp_localize_script($this->plugin_name, 'wpWarranty', array(
+			'ajax_url'      => admin_url('admin-ajax.php'),
+			'nonce'         => wp_create_nonce('wp_warranty_ajax_nonce'),
+			'msg_checking'  => __('Checking...', 'wp-warranty-manager'),
+			'msg_error'     => __('Server error occurred.', 'wp-warranty-manager'),
+		));
 	}
 }

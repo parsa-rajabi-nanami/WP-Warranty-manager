@@ -31,130 +31,62 @@
 
 
 	jQuery(document).ready(function ($) {
-
-
-
 		$('#wp-warranty-form').on('submit', function (e) {
-
-
 
 			e.preventDefault();
 
-
-
 			let form = $(this);
-
-
-
 			let code = form.find('input[name=\"warranty_code\"]').val();
-
-
 
 			form.addClass('wp-warranty-loading');
 
-
-
 			$('.wp-warranty-message')
-
 				.stop(true, true)
-
 				.hide()
-
-				.html('در حال بررسی...')
-
+				.html(wpWarranty.msg_checking)
 				.fadeIn(200);
-
-
-
 			$.ajax({
-
 				url: wpWarranty.ajax_url,
-
 				type: 'POST',
-
 				data: {
-
 					action: 'wp_activate_warranty',
-
 					nonce: wpWarranty.nonce,
-
 					warranty_code: code
-
 				},
-
-
-
 				success: function (response) {
 
-
-
 					form.removeClass('wp-warranty-loading');
-
-
 
 					if (response.success) {
 
 						$('.wp-warranty-message')
-
 							.stop(true, true)
-
 							.hide()
-
 							.html(response.data.message)
-
 							.fadeIn(200);
 
 					} else {
 
 						$('.wp-warranty-message')
-
 							.stop(true, true)
-
 							.hide()
-
 							.html(response.data.message)
-
 							.fadeIn(200);
 
 					}
-
-
-
 				},
-
-
-
 				error: function () {
-
-
 
 					form.removeClass('wp-warranty-loading');
 
-
-
 					$('.wp-warranty-message')
-
 						.stop(true, true)
-
 						.hide()
-
-						.html('خطای سرور رخ داد')
-
+						.html(wpWarranty.msg_error)
 						.fadeIn(200);
 
-
-
 				}
-
-
-
 			});
-
-
-
 		});
-
-
-
 	});
 })(jQuery);

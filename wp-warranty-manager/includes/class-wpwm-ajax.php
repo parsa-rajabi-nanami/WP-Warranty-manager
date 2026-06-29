@@ -47,6 +47,26 @@ class WPWM_Ajax
     }
 
     /**
+     * Convert Gregorian datetime to Jalali (Persian) calendar.
+     *
+     * @since  1.0.0
+     * @param  string $datetime  MySQL datetime string.
+     * @param  string $format    Date format string.
+     * @return string            Formatted date string.
+     */
+    private function to_jalali($datetime, $format = 'Y/m/d H:i')
+    {
+        if (empty($datetime)) {
+            return '—';
+        }
+        $timestamp = strtotime($datetime);
+        if (function_exists('parsidate')) {
+            return parsidate($format, $timestamp);
+        }
+        return date($format, $timestamp);
+    }
+
+    /**
      * Handle warranty activation AJAX request.
      *
      * Validates the submitted warranty code, checks its current status,

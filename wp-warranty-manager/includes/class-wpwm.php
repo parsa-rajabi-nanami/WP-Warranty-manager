@@ -12,6 +12,9 @@
  * @package    WP_Warranty_Manager
  * @subpackage WP_Warranty_Manager/includes
  */
+if (!defined('ABSPATH')) {
+	exit;
+}
 
 /**
  * The core plugin class.
