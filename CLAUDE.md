@@ -107,6 +107,8 @@ Only the `wp-warranty-manager/` subdirectory is deployed to WordPress.
 
 **Project-local** (lives in this repo, loaded automatically):
 - `CLAUDE.md` — this file
+- `.claude/settings.json` — shared project permissions/config, if present (committed)
+- `.claude/settings.local.json` — your personal overrides; gitignored, never commit it
 
 **Global** (must be configured per developer machine, cannot live in the repo):
 - Caveman skill (`/caveman`) — install via Claude Code global skills

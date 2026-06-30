@@ -79,3 +79,8 @@ wp-config-local.php
 .hg/
 .svn/
 .CVS/
+
+# ── Claude Code (personal/local overrides only) ────────────────
+# .claude/settings.json (project, shared) IS committed.
+# .claude/settings.local.json is per-developer and must stay local.
+.claude/settings.local.json
