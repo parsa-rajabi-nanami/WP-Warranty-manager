@@ -58,7 +58,7 @@ wp plugin install https://github.com/parsa-rajabi-nanami/WP-Warranty-manager/arc
 
 ### 1. Import warranty codes
 
-Go to **WordPress Admin → Warranty Manager → Import CSV**.
+Go to **WordPress Admin → Warranty Manager**. The import form is on the main page.
 
 Each row holds one warranty code in the **first column**. A first row containing the literal header `warranty_code` is optional — it is detected and skipped automatically. Any extra columns are ignored.
 
