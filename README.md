@@ -1,112 +1,66 @@
-# Warranty Management System for WordPress
+# WP Warranty Manager
 
-A complete WordPress plugin for managing, activating, and verifying product warranty codes.
+A WordPress plugin for managing and activating product warranty codes. Administrators bulk-import codes via CSV from the WordPress dashboard; customers activate a warranty through a front-end shortcode form.
 
-## Overview
-
-Warranty Management System is a WordPress plugin designed to simplify the management of product warranty codes. Administrators can import warranty codes in bulk through CSV files, while customers can activate their warranties or check warranty status directly from the website.
-
-The plugin provides a centralized system for tracking warranty activations, expiration dates, and customer information.
+[![PHP Lint](https://github.com/parsa-rajabi-nanami/WP-Warranty-manager/actions/workflows/php-lint.yml/badge.svg)](https://github.com/parsa-rajabi-nanami/WP-Warranty-manager/actions/workflows/php-lint.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![WordPress 6.0+](https://img.shields.io/badge/WordPress-6.0%2B-blue)
+![PHP 8.0+](https://img.shields.io/badge/PHP-8.0%2B-purple)
 
 ---
 
 ## Features
 
-### Admin Features
+**Admin**
+- Bulk-import warranty codes from a CSV file
+- View, search, and paginate all warranty records
+- Edit or delete individual warranty codes
+- Activation timestamps and expiration dates visible per record
 
-* Import unlimited warranty codes using CSV files.
-* Bulk management of warranty codes.
-* View all warranty records and activation history.
-* Search and filter warranty codes.
-* Monitor active, inactive, and expired warranties.
-* Set warranty duration and validity periods.
-* Export warranty data when needed.
-* Secure management dashboard within WordPress Admin.
-
-### Customer Features
-
-* Activate warranty by entering a valid warranty code.
-* Check warranty status instantly.
-* View activation date and warranty expiration date.
-* Receive validation messages for invalid, expired, or already activated codes.
-* Mobile-friendly warranty activation and inquiry forms.
+**Customer**
+- Activate a warranty code via a front-end shortcode form
+- Instant feedback for invalid or already-activated codes
+- Jalali (Persian) calendar support when [WP-Parsidate](https://wordpress.org/plugins/wp-parsidate/) is active
 
 ---
 
-## How It Works
+## Requirements
 
-### 1. Import Warranty Codes
-
-Administrators can upload a CSV file containing warranty codes from the WordPress dashboard.
-
-Example CSV format:
-
-| warranty_code |
-| ------------- |
-| ABC123456     |
-| XYZ987654     |
-| TEST112233    |
-
-### 2. Warranty Activation
-
-Customers enter their warranty code through the activation form.
-
-The system will:
-
-* Validate the code.
-* Check whether the code exists.
-* Verify that it has not already been activated.
-* Register the activation date.
-* Calculate the expiration date based on the configured warranty period.
-
-### 3. Warranty Verification
-
-Customers can enter their warranty code at any time to view:
-
-* Warranty status
-* Activation date
-* Expiration date
-* Remaining validity period
+| Requirement | Minimum |
+|---|---|
+| WordPress | 6.0 |
+| PHP | 8.0 |
+| MySQL / MariaDB | 5.7 / 10.3 |
 
 ---
 
 ## Installation
 
-### Automatic Installation
+### From source
 
-1. Upload the plugin through the WordPress Plugins screen.
-2. Activate the plugin.
-3. Navigate to the Warranty Management menu in the WordPress dashboard.
-4. Configure plugin settings.
-5. Import warranty codes using a CSV file.
+1. Clone or download this repository.
+2. Copy the `wp-warranty-manager/` subdirectory into your WordPress install:
+   ```
+   wp-content/plugins/wp-warranty-manager/
+   ```
+3. Activate the plugin from **WordPress Admin → Plugins**.
+4. The database table is created automatically on activation.
 
-### Manual Installation
+### Using WP-CLI
 
-1. Upload the plugin files to:
-
-`/wp-content/plugins/wp-warranty-manager/`
-
-2. Activate the plugin through the WordPress Plugins menu.
-3. Configure warranty settings.
-4. Import warranty codes and start using the system.
-
----
-
-## Shortcodes
-
-### Combined Form
-
-```text
-[warranty_form]
+```bash
+wp plugin install https://github.com/parsa-rajabi-nanami/WP-Warranty-manager/archive/refs/heads/main.zip --activate
 ```
 
-Displays activation and inquiry functionality in a single interface.
-
 ---
 
-## CSV Import Requirements
+## Usage
 
-The CSV file must contain at least one column:
+### 1. Import warranty codes
+
+Go to **WordPress Admin → Warranty Manager → Import CSV**.
+
+CSV format — one warranty code per row, first column only:
 
 ```csv
 warranty_code
@@ -115,77 +69,78 @@ XYZ987654
 TEST112233
 ```
 
-Optional fields:
+> **Note:** The importer reads the first column of every row including any header row. If your CSV has a header, import it and then delete the header row from the admin list.
 
-```csv
-warranty_code,product_name,warranty_period
-ABC123456,Product A,12
-XYZ987654,Product B,24
+### 2. Place the activation form
+
+Add the shortcode to any page or post:
+
+```text
+[warranty_form]
 ```
 
-Where:
+This renders the warranty activation form. When a customer submits a valid, unused code:
+- Status is set to `active`
+- Activation timestamp is recorded
+- Expiration is set to **one year from activation**
 
-* `warranty_code` = Unique warranty code
-* `product_name` = Product name
-* `warranty_period` = Warranty duration in months
+### 3. Warranty statuses
 
----
+| Status | Meaning |
+|---|---|
+| `inactive` | Code exists, not yet activated |
+| `active` | Code has been activated |
 
-## Warranty Statuses
-
-| Status    | Description                            |
-| --------- | -------------------------------------- |
-| Available | Code exists and has not been activated |
-| Activated | Warranty is active                     |
-| Expired   | Warranty period has ended              |
-| Invalid   | Warranty code does not exist           |
+Expiry is determined by the `expires_at` timestamp; there is no separate "expired" status stored in the database.
 
 ---
 
-## Security Features
+## Shortcodes
 
-* WordPress nonce verification.
-* Sanitization and validation of user inputs.
-* Protected CSV upload process.
-* Role and capability checks for administrators.
-* SQL injection protection using WordPress standards.
+| Shortcode | Description |
+|---|---|
+| `[warranty_form]` | Renders the warranty activation form |
 
 ---
 
-## Technical Requirements
+## Security
 
-* WordPress 6.0 or higher
-* PHP 8.0 or higher
-* MySQL 5.7+ / MariaDB equivalent
+- Nonce verification on all form submissions and AJAX requests
+- `current_user_can('manage_options')` check on all admin actions
+- All SQL executed through `$wpdb->prepare()` / `$wpdb->insert()` / `$wpdb->update()` / `$wpdb->delete()`
+- User input sanitised with WordPress sanitization functions
+- Rate limiting on the AJAX activation endpoint (10 attempts per 15 minutes per IP)
+- All PHP entry files guard against direct access with `if (!defined('ABSPATH')) exit;`
+
+See [SECURITY.md](SECURITY.md) to report a vulnerability.
+
+---
+
+## Development
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide. Quick start:
+
+```bash
+git clone https://github.com/parsa-rajabi-nanami/WP-Warranty-manager.git
+cd WP-Warranty-manager
+bash scripts/setup-dev.sh
+```
+
+### Linting
+
+```bash
+# PHP syntax check
+find wp-warranty-manager -name "*.php" -exec php -l {} \;
+```
+
+---
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
 ## License
 
-MIT License
-
-Copyright (c) 2026 parsa rajabi
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
----
-
-## Support
-
-For support, bug reports, feature requests, or documentation updates, please submit an issue through the project's GitHub repository and include a valid issue ID for tracking.
+[MIT](LICENSE) © 2026 Parsa Rajabi

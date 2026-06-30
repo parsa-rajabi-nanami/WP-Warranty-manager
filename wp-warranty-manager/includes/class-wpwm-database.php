@@ -43,7 +43,7 @@ class WPWM_Database
     {
         global $wpdb;
 
-        $this->table_name = $wpdb->prefix . 'warranty_codes';
+        $this->table_name = $wpdb->prefix . WPWM_TABLE_WARRANTY_CODES;
     }
 
     /**

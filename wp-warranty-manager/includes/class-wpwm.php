@@ -121,9 +121,14 @@ class WP_Warranty_Manager
 		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wpwm-i18n.php';
 
 		/**
-		 * The class responsible for defining all actions that occur in the admin area.
+		 * The class responsible for the admin menu, asset enqueueing, and read-only rendering.
 		 */
 		require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-wpwm-admin.php';
+
+		/**
+		 * The class responsible for admin write actions (edit, delete).
+		 */
+		require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-wpwm-admin-actions.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
@@ -146,6 +151,11 @@ class WP_Warranty_Manager
 		 */
 		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wpwm-csv-importer.php';
 
+		/**
+		 * Shared date formatting utility (Jalali / Gregorian).
+		 */
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-wpwm-date-helper.php';
+
 		$this->loader = new WPWM_Loader();
 	}
 
@@ -167,39 +177,40 @@ class WP_Warranty_Manager
 	}
 
 	/**
-	 * Register all of the hooks related to the admin area functionality
-	 * of the plugin. Covers admin menus, scripts, styles, and form submission handlers
-	 * for edit and delete actions via admin-post.php.
+	 * Register all of the hooks related to the admin area functionality of the plugin.
+	 *
+	 * WPWM_Admin handles read-only concerns: menu registration, asset enqueueing, and rendering.
+	 * WPWM_Admin_Actions handles write concerns: edit and delete form submissions.
 	 *
 	 * @since    1.0.0
 	 * @access   private
 	 */
 	private function define_admin_hooks()
 	{
-
-		$plugin_admin = new WPWM_Admin($this->get_plugin_name(), $this->get_version());
+		$plugin_admin   = new WPWM_Admin($this->get_plugin_name(), $this->get_version());
+		$admin_actions  = new WPWM_Admin_Actions();
 
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 		$this->loader->add_action('admin_menu', $plugin_admin, 'admin_menu');
 
-		$this->loader->add_action('admin_post_edit_warranty_code',   $plugin_admin, 'edit_code');
-		$this->loader->add_action('admin_post_delete_warranty_code', $plugin_admin, 'delete_code');
+		$this->loader->add_action('admin_post_edit_warranty_code',   $admin_actions, 'edit_code');
+		$this->loader->add_action('admin_post_delete_warranty_code', $admin_actions, 'delete_code');
 	}
 
 	/**
 	 * Register all of the hooks related to the public-facing functionality
 	 * of the plugin.
 	 *
+	 * Assets (CSS/JS) are enqueued on demand inside WPWM_Shortcodes::render_warranty_form()
+	 * so they are only loaded on pages that contain the [warranty_form] shortcode.
+	 *
 	 * @since    1.0.0
 	 * @access   private
 	 */
 	private function define_public_hooks()
 	{
-		$plugin_public = new WPWM_Public($this->get_plugin_name(), $this->get_version());
-
-		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
-		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
+		// Intentionally empty: front-end assets are enqueued conditionally by the shortcode renderer.
 	}
 
 	/**

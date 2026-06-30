@@ -3,16 +3,16 @@
 /**
  * Main admin page view — warranty list, search, filter, pagination and CSV import.
  *
- * Available variables (passed from WPWM_Admin::admin_page()):
+ * Available via $view_data (passed from WPWM_Admin::admin_page()):
  *
- * @var array  $results       Query results for the current page.
- * @var string $search        Current search term.
- * @var string $filter        Current status filter (active|inactive|'').
- * @var int    $total_items   Total number of matching records.
- * @var int    $total_pages   Total number of pages.
- * @var int    $current_page  Current page number.
- * @var int    $per_page      Records per page.
- * @var string $base_url      Base pagination URL with active filters applied.
+ * @var array  $view_data['results']       Query results for the current page.
+ * @var string $view_data['search']        Current search term.
+ * @var string $view_data['filter']        Current status filter (active|inactive|'').
+ * @var int    $view_data['total_items']   Total number of matching records.
+ * @var int    $view_data['total_pages']   Total number of pages.
+ * @var int    $view_data['current_page']  Current page number.
+ * @var int    $view_data['per_page']      Records per page.
+ * @var string $view_data['base_url']      Base pagination URL with active filters applied.
  *
  * @link       https://github.com/parsa-rajabi-nanami/WP-Warranty-manager
  * @since      1.0.0
@@ -24,6 +24,15 @@
 if (! defined('ABSPATH')) {
     exit;
 }
+
+$results      = $view_data['results'];
+$search       = $view_data['search'];
+$filter       = $view_data['filter'];
+$total_items  = $view_data['total_items'];
+$total_pages  = $view_data['total_pages'];
+$current_page = $view_data['current_page'];
+$per_page     = $view_data['per_page'];
+$base_url     = $view_data['base_url'];
 ?>
 
 <div class="wrap">
@@ -32,6 +41,26 @@ if (! defined('ABSPATH')) {
     <?php if (isset($_GET['deleted']) && '1' === $_GET['deleted']) : ?>
         <div class="notice notice-success is-dismissible">
             <p><?php esc_html_e('Warranty code deleted successfully.', 'wp-warranty-manager'); ?></p>
+        </div>
+    <?php endif; ?>
+
+    <?php if (isset($_GET['import_error']) && '' !== $_GET['import_error']) : ?>
+        <div class="notice notice-error is-dismissible">
+            <p><?php echo esc_html(urldecode($_GET['import_error'])); ?></p>
+        </div>
+    <?php endif; ?>
+
+    <?php if (isset($_GET['imported'])) : ?>
+        <div class="notice notice-success is-dismissible">
+            <p>
+            <?php
+            printf(
+                /* translators: %d: number of imported codes */
+                esc_html__('%d warranty code(s) imported successfully.', 'wp-warranty-manager'),
+                (int) $_GET['imported']
+            );
+            ?>
+            </p>
         </div>
     <?php endif; ?>
 
@@ -51,7 +80,7 @@ if (! defined('ABSPATH')) {
 
     <form method="get" action="">
         <input type="hidden" name="page" value="warranty-manager">
-        <div style="display:flex;gap:10px;align-items:center;margin-bottom:15px;flex-wrap:wrap;">
+        <div class="wpwm-filter-bar">
             <input
                 type="text"
                 name="s"
@@ -71,7 +100,7 @@ if (! defined('ABSPATH')) {
                     <?php esc_html_e('Clear filter', 'wp-warranty-manager'); ?>
                 </a>
             <?php endif; ?>
-            <span style="color:#666;font-size:13px;">
+            <span class="wpwm-filter-summary">
                 <?php
                 printf(
                     /* translators: %s: number of results */
@@ -112,33 +141,31 @@ if (! defined('ABSPATH')) {
                         <td><code><?php echo esc_html($row->warranty_code); ?></code></td>
                         <td>
                             <?php if ('active' === $row->status) : ?>
-                                <span style="color:green;font-weight:bold;">
+                                <span class="wpwm-status wpwm-status--active">
                                     ✅ <?php esc_html_e('Active', 'wp-warranty-manager'); ?>
                                 </span>
                             <?php else : ?>
-                                <span style="color:#999;font-weight:bold;">
+                                <span class="wpwm-status wpwm-status--inactive">
                                     ⛔ <?php esc_html_e('Inactive', 'wp-warranty-manager'); ?>
                                 </span>
                             <?php endif; ?>
                         </td>
-                        <td><?php echo esc_html($this->to_jalali($row->activated_at)); ?></td>
-                        <td><?php echo esc_html($this->to_jalali($row->expires_at)); ?></td>
+                        <td><?php echo esc_html(WPWM_Date_Helper::format($row->activated_at)); ?></td>
+                        <td><?php echo esc_html(WPWM_Date_Helper::format($row->expires_at)); ?></td>
                         <td><?php echo $row->customer_ip ? esc_html($row->customer_ip) : '—'; ?></td>
                         <td>
-
                             <a href="<?php echo esc_url(admin_url('admin.php?page=warranty-edit&id=' . $row->id)); ?>"
-                                class="button button-small"
-                                style="margin-left:5px;">✏️ <?php esc_html_e('Edit', 'wp-warranty-manager'); ?></a>
+                                class="button button-small wpwm-btn-edit">✏️ <?php esc_html_e('Edit', 'wp-warranty-manager'); ?></a>
 
                             <form
                                 method="post"
                                 action="<?php echo esc_url(admin_url('admin-post.php')); ?>"
-                                style="display:inline;"
+                                class="wpwm-delete-form"
                                 onsubmit="return confirm('<?php esc_attr_e('Are you sure you want to delete this warranty code?', 'wp-warranty-manager'); ?>')">
                                 <input type="hidden" name="action" value="delete_warranty_code">
                                 <input type="hidden" name="id" value="<?php echo esc_attr($row->id); ?>">
                                 <?php wp_nonce_field('delete_warranty_code_nonce'); ?>
-                                <button type="submit" class="button button-small" style="color:#cc0000;">
+                                <button type="submit" class="button button-small wpwm-btn-delete">
                                     🗑️ <?php esc_html_e('Delete', 'wp-warranty-manager'); ?>
                                 </button>
                             </form>
@@ -147,7 +174,7 @@ if (! defined('ABSPATH')) {
                 <?php endforeach; ?>
             <?php else : ?>
                 <tr>
-                    <td colspan="7" style="text-align:center;padding:20px;">
+                    <td colspan="7" class="wpwm-empty">
                         <?php esc_html_e('No warranty codes found.', 'wp-warranty-manager'); ?>
                     </td>
                 </tr>
@@ -156,7 +183,7 @@ if (! defined('ABSPATH')) {
     </table>
 
     <?php if ($total_pages > 1) : ?>
-        <div style="margin-top:20px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+        <div class="wpwm-pagination">
             <?php if ($current_page > 1) : ?>
                 <a href="<?php echo esc_url($base_url . '&paged=1'); ?>" class="button">« <?php esc_html_e('First', 'wp-warranty-manager'); ?></a>
                 <a href="<?php echo esc_url($base_url . '&paged=' . ($current_page - 1)); ?>" class="button">‹ <?php esc_html_e('Prev', 'wp-warranty-manager'); ?></a>
@@ -166,16 +193,16 @@ if (! defined('ABSPATH')) {
             $start = max(1, $current_page - 2);
             $end   = min($total_pages, $current_page + 2);
             if ($start > 1) {
-                echo '<span style="padding:4px 8px;">...</span>';
+                echo '<span class="wpwm-pagination__ellipsis">...</span>';
             }
             for ($i = $start; $i <= $end; $i++) :
             ?>
                 <a href="<?php echo esc_url($base_url . '&paged=' . $i); ?>" class="button <?php echo ($i === $current_page) ? 'button-primary' : ''; ?>">
-                    <?php echo $i; ?>
+                    <?php echo (int) $i; ?>
                 </a>
             <?php endfor; ?>
             <?php if ($end < $total_pages) {
-                echo '<span style="padding:4px 8px;">...</span>';
+                echo '<span class="wpwm-pagination__ellipsis">...</span>';
             } ?>
 
             <?php if ($current_page < $total_pages) : ?>
@@ -183,7 +210,7 @@ if (! defined('ABSPATH')) {
                 <a href="<?php echo esc_url($base_url . '&paged=' . $total_pages); ?>" class="button"><?php esc_html_e('Last', 'wp-warranty-manager'); ?> »</a>
             <?php endif; ?>
 
-            <span style="color:#666;font-size:13px;margin-right:10px;">
+            <span class="wpwm-pagination__summary">
                 <?php
                 printf(
                     /* translators: 1: first item, 2: last item, 3: total */

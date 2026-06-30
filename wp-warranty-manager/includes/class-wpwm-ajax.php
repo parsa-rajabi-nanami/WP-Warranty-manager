@@ -43,27 +43,51 @@ class WPWM_Ajax
     {
         global $wpdb;
 
-        $this->table_name = $wpdb->prefix . 'warranty_codes';
+        $this->table_name = $wpdb->prefix . WPWM_TABLE_WARRANTY_CODES;
+    }
+
+/**
+     * Return the client IP address.
+     *
+     * Uses REMOTE_ADDR only. X-Forwarded-For is intentionally ignored
+     * because it can be forged; this value is used only for rate-limiting
+     * and informational storage, not for security decisions.
+     *
+     * @since  1.0.0
+     * @return string
+     */
+    private function get_client_ip()
+    {
+        return sanitize_text_field( $_SERVER['REMOTE_ADDR'] ?? '' );
     }
 
     /**
-     * Convert Gregorian datetime to Jalali (Persian) calendar.
+     * Check and increment the activation rate-limit counter for an IP.
+     *
+     * Allows at most WPWM_RATE_LIMIT_MAX attempts per WPWM_RATE_LIMIT_WINDOW
+     * seconds per IP address. Uses a WordPress transient as the counter.
      *
      * @since  1.0.0
-     * @param  string $datetime  MySQL datetime string.
-     * @param  string $format    Date format string.
-     * @return string            Formatted date string.
+     * @return bool  True when the request is within the allowed limit, false when blocked.
      */
-    private function to_jalali($datetime, $format = 'Y/m/d H:i')
+    private function check_rate_limit()
     {
-        if (empty($datetime)) {
-            return '—';
+        $ip           = $this->get_client_ip();
+        $transient    = 'wpwm_rl_' . md5( $ip );
+        $attempts     = (int) get_transient( $transient );
+
+        if ( $attempts >= WPWM_RATE_LIMIT_MAX ) {
+            return false;
         }
-        $timestamp = strtotime($datetime);
-        if (function_exists('parsidate')) {
-            return parsidate($format, $timestamp);
+
+        if ( $attempts === 0 ) {
+            set_transient( $transient, 1, WPWM_RATE_LIMIT_WINDOW );
+        } else {
+            // Preserve the original expiry by just incrementing the stored value.
+            set_transient( $transient, $attempts + 1, WPWM_RATE_LIMIT_WINDOW );
         }
-        return date($format, $timestamp);
+
+        return true;
     }
 
     /**
@@ -81,6 +105,12 @@ class WPWM_Ajax
     public function activate_warranty()
     {
         check_ajax_referer('wp_warranty_ajax_nonce', 'nonce');
+
+        if ( ! $this->check_rate_limit() ) {
+            wp_send_json_error( array(
+                'message' => __( 'Too many attempts. Please try again later.', 'wp-warranty-manager' ),
+            ), 429 );
+        }
 
         global $wpdb;
 
@@ -107,14 +137,14 @@ class WPWM_Ajax
             wp_send_json_error(array(
                 'message' => sprintf(
                     __('This warranty has already been activated.<br>Expiration date: %s', 'wp-warranty-manager'),
-                    esc_html($this->to_jalali($record->expires_at, 'Y/m/d'))
+                    esc_html(WPWM_Date_Helper::format($record->expires_at, 'Y/m/d'))
                 ),
             ));
         }
 
         $activated_at = current_time('mysql');
-        $expires_at   = date('Y-m-d H:i:s', strtotime('+1 year', current_time('timestamp')));
-        $ip           = sanitize_text_field($_SERVER['REMOTE_ADDR'] ?? '');
+        $expires_at   = wp_date('Y-m-d H:i:s', strtotime('+1 year', current_time('timestamp')));
+        $ip           = $this->get_client_ip();
 
         $wpdb->update(
             $this->table_name,
@@ -132,7 +162,7 @@ class WPWM_Ajax
         wp_send_json_success(array(
             'message' => sprintf(
                 __('Warranty activated successfully.<br>Expiration date: %s', 'wp-warranty-manager'),
-                esc_html($this->to_jalali($expires_at, 'Y/m/d'))
+                esc_html(WPWM_Date_Helper::format($expires_at, 'Y/m/d'))
             ),
         ));
     }

@@ -66,16 +66,37 @@ class WPWM_Admin {
 
         $this->plugin_name = $plugin_name;
         $this->version     = $version;
-        $this->table_name  = $wpdb->prefix . 'warranty_codes';
+        $this->table_name  = $wpdb->prefix . WPWM_TABLE_WARRANTY_CODES;
     }
+
+    /**
+     * Admin page hook suffixes this plugin owns.
+     *
+     * Populated on the first call to enqueue_styles() / enqueue_scripts() and
+     * used to guard against loading assets on unrelated admin pages.
+     *
+     * @since  1.0.0
+     * @var    string[]
+     */
+    private static $plugin_hooks = array(
+        'toplevel_page_warranty-manager',
+        'warranty-manager_page_warranty-edit',
+    );
 
     /**
      * Register the stylesheets for the admin area.
      *
+     * Only loads on the plugin's own admin pages.
+     *
      * @since   1.0.0
+     * @param   string $hook  Current admin page hook suffix.
      * @return  void
      */
-    public function enqueue_styles() {
+    public function enqueue_styles( $hook ) {
+        if ( ! in_array( $hook, self::$plugin_hooks, true ) ) {
+            return;
+        }
+
         wp_enqueue_style(
             $this->plugin_name,
             plugin_dir_url( __FILE__ ) . 'css/wpwm-admin.css',
@@ -88,10 +109,17 @@ class WPWM_Admin {
     /**
      * Register the JavaScript for the admin area.
      *
+     * Only loads on the plugin's own admin pages.
+     *
      * @since   1.0.0
+     * @param   string $hook  Current admin page hook suffix.
      * @return  void
      */
-    public function enqueue_scripts() {
+    public function enqueue_scripts( $hook ) {
+        if ( ! in_array( $hook, self::$plugin_hooks, true ) ) {
+            return;
+        }
+
         wp_enqueue_script(
             $this->plugin_name,
             plugin_dir_url( __FILE__ ) . 'js/wpwm-admin.js',
@@ -219,115 +247,10 @@ class WPWM_Admin {
     }
 
     /**
-     * Process edit form submission for a single warranty record.
-     *
-     * Called via admin-post.php on the edit_warranty_code action.
-     *
-     * @since   1.0.0
-     * @return  void
-     */
-    public function edit_code() {
-        if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Unauthorized access.', 'wp-warranty-manager' ) );
-        }
-
-        check_admin_referer( 'edit_warranty_code_nonce' );
-
-        global $wpdb;
-
-        $id            = absint( $_POST['id'] );
-        $warranty_code = sanitize_text_field( $_POST['warranty_code'] );
-        $status        = in_array( $_POST['status'], array( 'active', 'inactive' ), true ) ? $_POST['status'] : 'inactive';
-        $activated_at  = ! empty( $_POST['activated_at'] ) ? sanitize_text_field( str_replace( 'T', ' ', $_POST['activated_at'] ) ) . ':00' : null;
-        $expires_at    = ! empty( $_POST['expires_at'] )   ? sanitize_text_field( str_replace( 'T', ' ', $_POST['expires_at'] ) )   . ':00' : null;
-        $customer_ip   = sanitize_text_field( $_POST['customer_ip'] );
-
-        if ( empty( $warranty_code ) || ! $id ) {
-            wp_redirect( admin_url( 'admin.php?page=warranty-manager&error=invalid' ) );
-            exit;
-        }
-
-        $wpdb->update(
-            $this->table_name,
-            array(
-                'warranty_code' => $warranty_code,
-                'status'        => $status,
-                'activated_at'  => $activated_at,
-                'expires_at'    => $expires_at,
-                'customer_ip'   => $customer_ip,
-            ),
-            array( 'id' => $id ),
-            array( '%s', '%s', '%s', '%s', '%s' ),
-            array( '%d' )
-        );
-
-        wp_redirect( admin_url( 'admin.php?page=warranty-edit&id=' . $id . '&updated=1' ) );
-        exit;
-    }
-
-    /**
-     * Process delete form submission for a single warranty record.
-     *
-     * Called via admin-post.php on the delete_warranty_code action.
-     *
-     * @since   1.0.0
-     * @return  void
-     */
-    public function delete_code() {
-        if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Unauthorized access.', 'wp-warranty-manager' ) );
-        }
-
-        check_admin_referer( 'delete_warranty_code_nonce' );
-
-        global $wpdb;
-
-        $id = absint( $_POST['id'] );
-
-        if ( ! $id ) {
-            wp_redirect( admin_url( 'admin.php?page=warranty-manager' ) );
-            exit;
-        }
-
-        $wpdb->delete(
-            $this->table_name,
-            array( 'id' => $id ),
-            array( '%d' )
-        );
-
-        wp_redirect( admin_url( 'admin.php?page=warranty-manager&deleted=1' ) );
-        exit;
-    }
-
-    /**
-     * Convert Gregorian datetime to Jalali (Persian) calendar.
-     *
-     * Falls back to Gregorian format if WP Parsidate plugin is not installed.
-     *
-     * @since   1.0.0
-     * @param   string $datetime  MySQL datetime string.
-     * @param   string $format    Date format string.
-     * @return  string            Formatted date string.
-     */
-    public function to_jalali( $datetime, $format = 'Y/m/d H:i' ) {
-        if ( empty( $datetime ) ) {
-            return '—';
-        }
-
-        $timestamp = strtotime( $datetime );
-
-        if ( function_exists( 'parsidate' ) ) {
-            return parsidate( $format, $timestamp );
-        }
-
-        return date( $format, $timestamp );
-    }
-
-    /**
      * Load and render a partial view file.
      *
-     * Extracts the $view_data array as local variables so the partial
-     * can access them directly by name.
+     * The partial receives data via the $view_data array. Access values
+     * as $view_data['key'] — no extract(), no scope pollution.
      *
      * @since   1.0.0
      * @access  private
@@ -336,7 +259,6 @@ class WPWM_Admin {
      * @return  void
      */
     private function render( $partial, $view_data = array() ) {
-        extract( $view_data ); // phpcs:ignore WordPress.PHP.DontExtract
         include plugin_dir_path( __FILE__ ) . 'partials/' . $partial . '.php';
     }
 }

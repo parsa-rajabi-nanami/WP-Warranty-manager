@@ -41,12 +41,37 @@ class WPWM_Shortcodes {
     /**
      * Render the warranty activation form.
      *
+     * Enqueues front-end assets on demand so they are only loaded on
+     * pages that actually contain the [warranty_form] shortcode.
+     *
      * Usage: [warranty_form]
      *
      * @since  1.0.0
      * @return string  HTML output of the form.
      */
     public function render_warranty_form() {
+        wp_enqueue_style(
+            'wp-warranty-manager',
+            WPWM_PLUGIN_URL . 'public/css/wpwm-public.css',
+            array(),
+            WPWM_VERSION
+        );
+
+        wp_enqueue_script(
+            'wp-warranty-manager',
+            WPWM_PLUGIN_URL . 'public/js/wpwm-public.js',
+            array( 'jquery' ),
+            WPWM_VERSION,
+            true
+        );
+
+        wp_localize_script( 'wp-warranty-manager', 'wpWarranty', array(
+            'ajax_url'     => admin_url( 'admin-ajax.php' ),
+            'nonce'        => wp_create_nonce( 'wp_warranty_ajax_nonce' ),
+            'msg_checking' => __( 'Checking...', 'wp-warranty-manager' ),
+            'msg_error'    => __( 'Server error occurred.', 'wp-warranty-manager' ),
+        ) );
+
         ob_start();
         ?>
         <div class="wp-warranty-box">

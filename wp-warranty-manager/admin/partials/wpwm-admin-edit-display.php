@@ -3,10 +3,10 @@
 /**
  * Edit page view — form for editing a single warranty record.
  *
- * Available variables (passed from WPWM_Admin::edit_page()):
+ * Available via $view_data (passed from WPWM_Admin::edit_page()):
  *
- * @var object $record   The warranty record row from the database.
- * @var bool   $updated  Whether the record was just successfully updated.
+ * @var object $view_data['record']   The warranty record row from the database.
+ * @var bool   $view_data['updated']  Whether the record was just successfully updated.
  *
  * @link       https://github.com/parsa-rajabi-nanami/WP-Warranty-manager
  * @since      1.0.0
@@ -18,6 +18,9 @@
 if (! defined('ABSPATH')) {
     exit;
 }
+
+$record  = $view_data['record'];
+$updated = $view_data['updated'];
 ?>
 
 <div class="wrap">
@@ -36,7 +39,7 @@ if (! defined('ABSPATH')) {
     </a>
 
     <?php if ($updated) : ?>
-        <div class="notice notice-success is-dismissible" style="margin-top:15px;">
+        <div class="notice notice-success is-dismissible wpwm-notice--top">
             <p><?php esc_html_e('Warranty code updated successfully.', 'wp-warranty-manager'); ?></p>
         </div>
     <?php endif; ?>
@@ -81,7 +84,7 @@ if (! defined('ABSPATH')) {
                         type="datetime-local"
                         id="activated_at"
                         name="activated_at"
-                        value="<?php echo $record->activated_at ? esc_attr(date('Y-m-d\TH:i', strtotime($record->activated_at))) : ''; ?>">
+                        value="<?php echo $record->activated_at ? esc_attr(wp_date('Y-m-d\TH:i', strtotime($record->activated_at))) : ''; ?>">
                     <p class="description"><?php esc_html_e('Leave empty to clear the activation date.', 'wp-warranty-manager'); ?></p>
                 </td>
             </tr>
@@ -92,7 +95,7 @@ if (! defined('ABSPATH')) {
                         type="datetime-local"
                         id="expires_at"
                         name="expires_at"
-                        value="<?php echo $record->expires_at ? esc_attr(date('Y-m-d\TH:i', strtotime($record->expires_at))) : ''; ?>">
+                        value="<?php echo $record->expires_at ? esc_attr(wp_date('Y-m-d\TH:i', strtotime($record->expires_at))) : ''; ?>">
                     <p class="description"><?php esc_html_e('Leave empty to clear the expiration date.', 'wp-warranty-manager'); ?></p>
                 </td>
             </tr>

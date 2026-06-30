@@ -1,4 +1,73 @@
 /**
- * All of the CSS for your admin-specific functionality should be
- * included in this file.
+ * Admin styles for WP Warranty Manager.
  */
+
+/* ── Filter bar ──────────────────────────────────────────────────── */
+.wpwm-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.wpwm-filter-summary {
+    color: #666;
+    font-size: 13px;
+}
+
+/* ── Status badges ───────────────────────────────────────────────── */
+.wpwm-status {
+    font-weight: bold;
+}
+
+.wpwm-status--active {
+    color: green;
+}
+
+.wpwm-status--inactive {
+    color: #999;
+}
+
+/* ── Table empty state ───────────────────────────────────────────── */
+.wpwm-empty {
+    text-align: center;
+    padding: 20px;
+}
+
+/* ── Action column ───────────────────────────────────────────────── */
+.wpwm-btn-edit {
+    margin-left: 5px;
+}
+
+.wpwm-btn-delete {
+    color: #cc0000;
+}
+
+.wpwm-delete-form {
+    display: inline;
+}
+
+/* ── Pagination ──────────────────────────────────────────────────── */
+.wpwm-pagination {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.wpwm-pagination__ellipsis {
+    padding: 4px 8px;
+}
+
+.wpwm-pagination__summary {
+    color: #666;
+    font-size: 13px;
+    margin-right: 10px;
+}
+
+/* ── Edit page ───────────────────────────────────────────────────── */
+.wpwm-notice--top {
+    margin-top: 15px;
+}

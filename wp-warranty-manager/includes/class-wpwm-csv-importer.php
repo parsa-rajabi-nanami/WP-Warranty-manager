@@ -45,7 +45,57 @@ class WPWM_CSV_Importer {
     public function __construct() {
         global $wpdb;
 
-        $this->table_name = $wpdb->prefix . 'warranty_codes';
+        $this->table_name = $wpdb->prefix . WPWM_TABLE_WARRANTY_CODES;
+    }
+
+    /**
+     * Validate the uploaded CSV file before processing.
+     *
+     * Checks presence, upload errors, file size, and MIME type / extension.
+     * Returns a translated error string on failure, or an empty string on success.
+     *
+     * @since  1.0.0
+     * @return string  Error message, or '' when valid.
+     */
+    private function validate_upload() {
+        if ( empty( $_FILES['csv_file']['tmp_name'] ) || ! isset( $_FILES['csv_file']['error'] ) ) {
+            return __( 'No file was uploaded.', 'wp-warranty-manager' );
+        }
+
+        if ( UPLOAD_ERR_OK !== (int) $_FILES['csv_file']['error'] ) {
+            return __( 'File upload error. Please try again.', 'wp-warranty-manager' );
+        }
+
+        if ( (int) $_FILES['csv_file']['size'] > WPWM_CSV_MAX_SIZE ) {
+            return sprintf(
+                /* translators: %d: max allowed megabytes */
+                __( 'File exceeds the maximum allowed size of %d MB.', 'wp-warranty-manager' ),
+                WPWM_CSV_MAX_SIZE / MB_IN_BYTES
+            );
+        }
+
+        $file_info = wp_check_filetype_and_ext(
+            $_FILES['csv_file']['tmp_name'],
+            $_FILES['csv_file']['name'],
+            array( 'csv' => 'text/csv' )
+        );
+
+        $allowed_ext   = array( 'csv' );
+        $allowed_types = array( 'text/csv', 'text/plain', 'application/csv', 'application/vnd.ms-excel' );
+        $ext           = strtolower( pathinfo( sanitize_file_name( $_FILES['csv_file']['name'] ), PATHINFO_EXTENSION ) );
+
+        if ( ! in_array( $ext, $allowed_ext, true ) ) {
+            return __( 'Only .csv files are allowed.', 'wp-warranty-manager' );
+        }
+
+        // wp_check_filetype_and_ext returns false ext/type when the real MIME doesn't match.
+        // Fall back to checking the reported MIME type from the browser as a secondary gate.
+        $mime = $file_info['type'] ?: sanitize_text_field( $_FILES['csv_file']['type'] );
+        if ( ! in_array( $mime, $allowed_types, true ) ) {
+            return __( 'Invalid file type. Please upload a valid CSV file.', 'wp-warranty-manager' );
+        }
+
+        return '';
     }
 
     /**
@@ -67,8 +117,12 @@ class WPWM_CSV_Importer {
 
         check_admin_referer( 'import_warranty_csv_nonce' );
 
-        if ( empty( $_FILES['csv_file']['tmp_name'] ) ) {
-            wp_redirect( admin_url( 'admin.php?page=warranty-manager' ) );
+        $error = $this->validate_upload();
+        if ( $error ) {
+            wp_redirect( add_query_arg(
+                array( 'page' => 'warranty-manager', 'import_error' => urlencode( $error ) ),
+                admin_url( 'admin.php' )
+            ) );
             exit;
         }
 
@@ -77,34 +131,64 @@ class WPWM_CSV_Importer {
         // Normalize line endings: \r\n (Windows) and \r (old Mac) → \n
         $raw   = file_get_contents( $_FILES['csv_file']['tmp_name'] );
         $raw   = str_replace( array( "\r\n", "\r" ), "\n", $raw );
-        $lines = array_filter( array_map( 'trim', explode( "\n", $raw ) ) );
+        $lines = array_values( array_filter( array_map( 'trim', explode( "\n", $raw ) ) ) );
 
-        foreach ( $lines as $line ) {
-            $data = str_getcsv( $line, ',' );
-            $code = sanitize_text_field( trim( $data[0] ?? '' ) );
-
-            if ( empty( $code ) ) {
-                continue;
-            }
-
-            $exists = $wpdb->get_var( $wpdb->prepare(
-                "SELECT id FROM {$this->table_name} WHERE warranty_code = %s",
-                $code
-            ) );
-
-            if ( ! $exists ) {
-                $wpdb->insert(
-                    $this->table_name,
-                    array(
-                        'warranty_code' => $code,
-                        'status'        => 'inactive',
-                    ),
-                    array( '%s', '%s' )
-                );
+        // Skip a header row when the first non-empty cell is the literal column name.
+        if ( ! empty( $lines ) ) {
+            $first_cell = strtolower( trim( str_getcsv( $lines[0], ',' )[0] ?? '' ) );
+            if ( 'warranty_code' === $first_cell ) {
+                array_shift( $lines );
             }
         }
 
-        wp_redirect( admin_url( 'admin.php?page=warranty-manager' ) );
+        // Parse and sanitize all codes first, discarding blanks and duplicates.
+        $codes = array();
+        foreach ( $lines as $line ) {
+            $code = sanitize_text_field( trim( str_getcsv( $line, ',' )[0] ?? '' ) );
+            if ( '' !== $code ) {
+                $codes[ $code ] = true; // key-dedup within the file itself
+            }
+        }
+        $codes = array_keys( $codes );
+
+        $imported = 0;
+
+        if ( ! empty( $codes ) ) {
+            // Bulk insert in chunks of 200 rows per query to avoid huge SQL strings.
+            $chunks = array_chunk( $codes, 200 );
+
+            $wpdb->query( 'START TRANSACTION' );
+
+            foreach ( $chunks as $chunk ) {
+                $placeholders = implode( ', ', array_fill( 0, count( $chunk ), "(%s, 'inactive')" ) );
+                // phpcs:ignore WordPress.DB.PreparedSQLNotPrepared
+                $rows_affected = $wpdb->query(
+                    $wpdb->prepare(
+                        // INSERT IGNORE silently skips rows that violate the UNIQUE KEY on warranty_code.
+                        "INSERT IGNORE INTO {$this->table_name} (warranty_code, status) VALUES {$placeholders}",
+                        $chunk
+                    )
+                );
+
+                if ( false === $rows_affected ) {
+                    $wpdb->query( 'ROLLBACK' );
+                    wp_redirect( add_query_arg(
+                        array( 'page' => 'warranty-manager', 'import_error' => urlencode( __( 'Database error during import. No codes were saved.', 'wp-warranty-manager' ) ) ),
+                        admin_url( 'admin.php' )
+                    ) );
+                    exit;
+                }
+
+                $imported += (int) $rows_affected;
+            }
+
+            $wpdb->query( 'COMMIT' );
+        }
+
+        wp_redirect( add_query_arg(
+            array( 'page' => 'warranty-manager', 'imported' => $imported ),
+            admin_url( 'admin.php' )
+        ) );
         exit;
     }
 }

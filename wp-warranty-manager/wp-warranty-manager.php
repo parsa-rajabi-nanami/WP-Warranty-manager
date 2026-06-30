@@ -38,6 +38,16 @@ define('WPWM_VERSION', '1.0.0');
 define('WPWM_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('WPWM_PLUGIN_URL', plugin_dir_url(__FILE__));
 
+/** Rate limiting: max attempts before blocking, and window length in seconds. */
+define('WPWM_RATE_LIMIT_MAX', 10);
+define('WPWM_RATE_LIMIT_WINDOW', 15 * MINUTE_IN_SECONDS);
+
+/** CSV import: maximum allowed file size in bytes (default 10 MB). */
+define('WPWM_CSV_MAX_SIZE', 10 * MB_IN_BYTES);
+
+/** The custom database table that stores all warranty codes (without WP prefix). */
+define('WPWM_TABLE_WARRANTY_CODES', 'warranty_codes');
+
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-wpwm-activator.php
