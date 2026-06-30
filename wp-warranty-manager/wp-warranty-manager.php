@@ -17,6 +17,8 @@
  * Plugin URI:        https://github.com/parsa-rajabi-nanami/WP-Warranty-manager
  * Description:       Professional warranty activation and management system with CSV import, shortcode and admin dashboard.
  * Version:           1.0.0
+ * Requires at least: 6.0
+ * Requires PHP:      8.0
  * Author:            Parsa Rajabi
  * Author URI:        https://github.com/parsa-rajabi-nanami/
  * License:           MIT
@@ -52,7 +54,7 @@ define('WPWM_TABLE_WARRANTY_CODES', 'warranty_codes');
  * The code that runs during plugin activation.
  * This action is documented in includes/class-wpwm-activator.php
  */
-function activate_wp_warranty_manager()
+function wpwm_activate()
 {
 	require_once plugin_dir_path(__FILE__) . 'includes/class-wpwm-activator.php';
 	WPWM_Activator::activate();
@@ -62,14 +64,14 @@ function activate_wp_warranty_manager()
  * The code that runs during plugin deactivation.
  * This action is documented in includes/class-wpwm-deactivator.php
  */
-function deactivate_wp_warranty_manager()
+function wpwm_deactivate()
 {
 	require_once plugin_dir_path(__FILE__) . 'includes/class-wpwm-deactivator.php';
 	WPWM_Deactivator::deactivate();
 }
 
-register_activation_hook(__FILE__, 'activate_wp_warranty_manager');
-register_deactivation_hook(__FILE__, 'deactivate_wp_warranty_manager');
+register_activation_hook(__FILE__, 'wpwm_activate');
+register_deactivation_hook(__FILE__, 'wpwm_deactivate');
 
 /**
  * The core plugin class that is used to define internationalization,
@@ -86,10 +88,9 @@ require plugin_dir_path(__FILE__) . 'includes/class-wpwm.php';
  *
  * @since    1.0.0
  */
-function run_WP_Warranty_Manager()
+function wpwm_run()
 {
-
 	$plugin = new WP_Warranty_Manager();
 	$plugin->run();
 }
-run_WP_Warranty_Manager();
+wpwm_run();

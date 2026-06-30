@@ -38,19 +38,22 @@ $base_url     = $view_data['base_url'];
 <div class="wrap">
     <h1><?php esc_html_e('Warranty Manager', 'wp-warranty-manager'); ?></h1>
 
-    <?php if (isset($_GET['deleted']) && '1' === $_GET['deleted']) : ?>
+    <?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only redirect flag, no data modified.
+    if (isset($_GET['deleted']) && '1' === $_GET['deleted']) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
         <div class="notice notice-success is-dismissible">
             <p><?php esc_html_e('Warranty code deleted successfully.', 'wp-warranty-manager'); ?></p>
         </div>
     <?php endif; ?>
 
-    <?php if (isset($_GET['import_error']) && '' !== $_GET['import_error']) : ?>
+    <?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+    if (isset($_GET['import_error']) && '' !== $_GET['import_error']) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
         <div class="notice notice-error is-dismissible">
-            <p><?php echo esc_html(urldecode($_GET['import_error'])); ?></p>
+            <p><?php echo esc_html(urldecode(sanitize_text_field(wp_unslash($_GET['import_error'])))); ?></p>
         </div>
     <?php endif; ?>
 
-    <?php if (isset($_GET['imported'])) : ?>
+    <?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+    if (isset($_GET['imported'])) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
         <div class="notice notice-success is-dismissible">
             <p>
             <?php
@@ -66,7 +69,9 @@ $base_url     = $view_data['base_url'];
 
     <hr>
     <h2><?php esc_html_e('Import CSV File', 'wp-warranty-manager'); ?></h2>
-    <p class="description"><?php esc_html_e('The CSV file must have one column where each row is a warranty code.', 'wp-warranty-manager'); ?></p>
+    <p class="description">
+        <?php esc_html_e('The CSV file must have one column where each row is a warranty code. An optional first row containing the header "warranty_code" is detected and skipped.', 'wp-warranty-manager'); ?>
+    </p>
 
     <form method="post" enctype="multipart/form-data" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
         <input type="hidden" name="action" value="import_warranty_csv">
@@ -74,6 +79,13 @@ $base_url     = $view_data['base_url'];
         <input type="file" name="csv_file" accept=".csv" required>
         <?php submit_button(__('Upload CSV', 'wp-warranty-manager'), 'secondary'); ?>
     </form>
+
+    <p class="description">
+        <?php esc_html_e('Not sure about the format?', 'wp-warranty-manager'); ?>
+        <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=download_warranty_sample'), 'download_warranty_sample_nonce')); ?>">
+            <?php esc_html_e('Download a sample CSV', 'wp-warranty-manager'); ?>
+        </a>
+    </p>
 
     <hr>
     <h2><?php esc_html_e('Warranty Codes List', 'wp-warranty-manager'); ?></h2>

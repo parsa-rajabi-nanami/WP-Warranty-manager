@@ -1,73 +1,71 @@
-=== Warranty Management System ===
+=== WP Warranty Manager ===
 Contributors: parsa-rajabi-nanami
-Tags: warranty, warranty-code, serial-number, product-registration, csv-import, product-activation
-Requires at least: 5.0
-Tested up to: 6.5
+Tags: warranty, warranty-code, serial-number, product-registration, csv-import
+Requires at least: 6.0
+Requires PHP: 8.0
+Tested up to: 7.0
 Stable tag: 1.0.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
-A WordPress plugin for managing, activating, and verifying product warranty codes using CSV import.
+A WordPress plugin for bulk-importing warranty codes via CSV and letting customers activate them through a front-end form.
 
 == Description ==
 
-Warranty Management System is a WordPress plugin that allows administrators to import warranty codes via CSV and lets customers activate or verify their warranty status directly from the website.
+WP Warranty Manager lets administrators bulk-import warranty codes via CSV and lets customers activate a code through a front-end shortcode form.
 
-It provides a complete system for tracking:
+It tracks, per code:
 
-* Warranty activation dates
-* Expiration dates
-* Code validity
-* Product warranty duration
+* Activation status (inactive / active)
+* Activation date
+* Expiration date (one year from activation)
+* The activating customer's IP address
 
 === Key Features ===
 
-* CSV-based bulk import of warranty codes
-* Customer warranty activation system
-* Instant warranty status verification
-* Tracking activation and expiration dates
-* Secure admin management panel
-* Lightweight and fast implementation
+* CSV-based bulk import of warranty codes, with a downloadable sample template
+* Front-end customer activation via the [warranty_form] shortcode
+* Admin dashboard to list, search, filter, edit, and delete codes
+* Jalali (Persian) calendar display when the WP-Parsidate plugin is active
+* Rate-limited activation endpoint with nonce and capability checks
 
 == Installation ==
 
 1. Upload the plugin files to the `/wp-content/plugins/wp-warranty-manager/` directory
-2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Go to Warranty Manager settings in admin dashboard
-4. Upload CSV file containing warranty codes
-5. Start managing warranty activations
+2. Activate the plugin through the 'Plugins' menu in WordPress (this creates the warranty codes database table)
+3. Open the **Warranty Manager** menu in the admin dashboard and upload a CSV of warranty codes (use the **Download a sample CSV** link for a correctly formatted template)
+4. Add the `[warranty_form]` shortcode to any page so customers can activate their codes
 
 == Frequently Asked Questions ==
 
 = How do I import warranty codes? =
-Use the CSV upload feature in the admin panel. The file must contain a column named `warranty_code`.
+Use the CSV upload feature on the Warranty Manager screen. Put one code per row in the first column; an optional `warranty_code` header row is detected and skipped. A starter template is available via the "Download a sample CSV" link.
 
-= Can users check warranty status? =
-Yes, users can enter their code and instantly see activation and expiration status.
+= What happens when a customer activates a code? =
+The code is marked active, the activation time is recorded, and the expiration date is set to one year from activation. Re-activating an already-active code is rejected.
 
-= Does it support multiple products? =
-Yes, each code can be linked to a product and warranty duration.
+= Does it support multiple products or custom warranty durations? =
+Not yet. Each row stores a single warranty code, and the warranty period is fixed at one year from activation. These are possible future enhancements.
 
 == Screenshots ==
 
-1. Admin CSV upload interface
-2. Warranty activation form
-3. Warranty status verification page
-4. Admin warranty management table
+1. Admin warranty management table (list, search, filter)
+2. Admin CSV import screen
+3. Front-end warranty activation form
 
 == Changelog ==
 
 = 1.0.0 =
-* Initial release
-* CSV import functionality
-* Warranty activation system
-* Warranty verification system
-* Admin dashboard integration
+* CSV bulk import of warranty codes (with downloadable sample template)
+* Front-end warranty activation via the [warranty_form] shortcode
+* Admin dashboard: list, search, filter, edit, and delete codes
+* Rate-limited activation endpoint
+* Jalali (Persian) calendar support via WP-Parsidate
 
 == Upgrade Notice ==
 
 = 1.0.0 =
-Initial stable release of Warranty Management System. Recommended for all users.
+First public release of WP Warranty Manager.
 
 == License ==
 

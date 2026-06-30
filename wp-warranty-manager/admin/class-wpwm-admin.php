@@ -167,9 +167,12 @@ class WPWM_Admin {
     public function admin_page() {
         global $wpdb;
 
-        $search       = isset( $_GET['s'] )             ? sanitize_text_field( $_GET['s'] )             : '';
-        $filter       = isset( $_GET['filter_status'] ) ? sanitize_text_field( $_GET['filter_status'] ) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only list filtering, no data modification.
+        $search       = isset( $_GET['s'] )             ? sanitize_text_field( wp_unslash( $_GET['s'] ) )             : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $filter       = isset( $_GET['filter_status'] ) ? sanitize_text_field( wp_unslash( $_GET['filter_status'] ) ) : '';
         $per_page     = 50;
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $current_page = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) : 1;
         $offset       = ( $current_page - 1 ) * $per_page;
 
@@ -181,10 +184,13 @@ class WPWM_Admin {
             $where .= $wpdb->prepare( ' AND status = %s', $filter );
         }
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $total_items = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$this->table_name} {$where}" );
         $total_pages = ceil( $total_items / $per_page );
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $results = $wpdb->get_results( $wpdb->prepare(
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             "SELECT * FROM {$this->table_name} {$where} ORDER BY id DESC LIMIT %d OFFSET %d",
             $per_page,
             $offset
@@ -225,11 +231,13 @@ class WPWM_Admin {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
 
         if ( ! $id ) {
-            wp_redirect( admin_url( 'admin.php?page=warranty-manager' ) );
+            wp_safe_redirect( admin_url( 'admin.php?page=warranty-manager' ) );
             exit;
         }
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $record = $wpdb->get_row( $wpdb->prepare(
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             "SELECT * FROM {$this->table_name} WHERE id = %d",
             $id
         ) );

@@ -58,7 +58,8 @@ class WPWM_Ajax
      */
     private function get_client_ip()
     {
-        return sanitize_text_field( $_SERVER['REMOTE_ADDR'] ?? '' );
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+        return sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ?? '' ) );
     }
 
     /**
@@ -114,7 +115,8 @@ class WPWM_Ajax
 
         global $wpdb;
 
-        $code = sanitize_text_field($_POST['warranty_code'] ?? '');
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+        $code = sanitize_text_field( wp_unslash( $_POST['warranty_code'] ?? '' ) );
 
         if (empty($code)) {
             wp_send_json_error(array(
@@ -122,10 +124,12 @@ class WPWM_Ajax
             ));
         }
 
-        $record = $wpdb->get_row($wpdb->prepare(
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $record = $wpdb->get_row( $wpdb->prepare(
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             "SELECT * FROM {$this->table_name} WHERE warranty_code = %s",
             $code
-        ));
+        ) );
 
         if (! $record) {
             wp_send_json_error(array(
@@ -136,6 +140,7 @@ class WPWM_Ajax
         if ('active' === $record->status) {
             wp_send_json_error(array(
                 'message' => sprintf(
+                    /* translators: %s: expiration date */
                     __('This warranty has already been activated.<br>Expiration date: %s', 'wp-warranty-manager'),
                     esc_html(WPWM_Date_Helper::format($record->expires_at, 'Y/m/d'))
                 ),
@@ -161,6 +166,7 @@ class WPWM_Ajax
 
         wp_send_json_success(array(
             'message' => sprintf(
+                /* translators: %s: expiration date */
                 __('Warranty activated successfully.<br>Expiration date: %s', 'wp-warranty-manager'),
                 esc_html(WPWM_Date_Helper::format($expires_at, 'Y/m/d'))
             ),

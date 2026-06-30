@@ -64,18 +64,20 @@ class WPWM_Admin_Actions {
 
         global $wpdb;
 
-        $id            = absint( $_POST['id'] );
-        $warranty_code = sanitize_text_field( $_POST['warranty_code'] );
-        $status        = in_array( $_POST['status'], array( 'active', 'inactive' ), true ) ? $_POST['status'] : 'inactive';
-        $activated_at  = ! empty( $_POST['activated_at'] ) ? sanitize_text_field( str_replace( 'T', ' ', $_POST['activated_at'] ) ) . ':00' : null;
-        $expires_at    = ! empty( $_POST['expires_at'] )   ? sanitize_text_field( str_replace( 'T', ' ', $_POST['expires_at'] ) )   . ':00' : null;
-        $customer_ip   = sanitize_text_field( $_POST['customer_ip'] );
+        $id            = isset( $_POST['id'] )            ? absint( $_POST['id'] )                                                                                        : 0;
+        $warranty_code = isset( $_POST['warranty_code'] ) ? sanitize_text_field( wp_unslash( $_POST['warranty_code'] ) )                                               : '';
+        $raw_status    = isset( $_POST['status'] )        ? sanitize_key( wp_unslash( $_POST['status'] ) )                                                             : '';
+        $status        = in_array( $raw_status, array( 'active', 'inactive' ), true ) ? $raw_status                                                                    : 'inactive';
+        $activated_at  = ! empty( $_POST['activated_at'] ) ? sanitize_text_field( str_replace( 'T', ' ', wp_unslash( $_POST['activated_at'] ) ) ) . ':00'             : null;
+        $expires_at    = ! empty( $_POST['expires_at'] )   ? sanitize_text_field( str_replace( 'T', ' ', wp_unslash( $_POST['expires_at'] ) ) )   . ':00'             : null;
+        $customer_ip   = isset( $_POST['customer_ip'] )   ? sanitize_text_field( wp_unslash( $_POST['customer_ip'] ) )                                                : '';
 
         if ( empty( $warranty_code ) || ! $id ) {
-            wp_redirect( admin_url( 'admin.php?page=warranty-manager&error=invalid' ) );
+            wp_safe_redirect( admin_url( 'admin.php?page=warranty-manager&error=invalid' ) );
             exit;
         }
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->update(
             $this->table_name,
             array(
@@ -90,7 +92,7 @@ class WPWM_Admin_Actions {
             array( '%d' )
         );
 
-        wp_redirect( admin_url( 'admin.php?page=warranty-edit&id=' . $id . '&updated=1' ) );
+        wp_safe_redirect( admin_url( 'admin.php?page=warranty-edit&id=' . $id . '&updated=1' ) );
         exit;
     }
 
@@ -111,20 +113,21 @@ class WPWM_Admin_Actions {
 
         global $wpdb;
 
-        $id = absint( $_POST['id'] );
+        $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
 
         if ( ! $id ) {
-            wp_redirect( admin_url( 'admin.php?page=warranty-manager' ) );
+            wp_safe_redirect( admin_url( 'admin.php?page=warranty-manager' ) );
             exit;
         }
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->delete(
             $this->table_name,
             array( 'id' => $id ),
             array( '%d' )
         );
 
-        wp_redirect( admin_url( 'admin.php?page=warranty-manager&deleted=1' ) );
+        wp_safe_redirect( admin_url( 'admin.php?page=warranty-manager&deleted=1' ) );
         exit;
     }
 }

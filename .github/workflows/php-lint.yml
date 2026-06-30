@@ -2,7 +2,7 @@ name: PHP Lint
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
     paths:
       - "wp-warranty-manager/**/*.php"
   pull_request:

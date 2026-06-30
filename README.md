@@ -60,7 +60,7 @@ wp plugin install https://github.com/parsa-rajabi-nanami/WP-Warranty-manager/arc
 
 Go to **WordPress Admin → Warranty Manager → Import CSV**.
 
-CSV format — one warranty code per row, first column only:
+Each row holds one warranty code in the **first column**. A first row containing the literal header `warranty_code` is optional — it is detected and skipped automatically. Any extra columns are ignored.
 
 ```csv
 warranty_code
@@ -69,7 +69,7 @@ XYZ987654
 TEST112233
 ```
 
-> **Note:** The importer reads the first column of every row including any header row. If your CSV has a header, import it and then delete the header row from the admin list.
+Need a starting point? On the import screen, click **Download a sample CSV** to get a correctly formatted template, fill in your codes, and upload it back. Duplicate codes (within the file or already in the database) are skipped on import.
 
 ### 2. Place the activation form
 
@@ -92,6 +92,21 @@ This renders the warranty activation form. When a customer submits a valid, unus
 | `active` | Code has been activated |
 
 Expiry is determined by the `expires_at` timestamp; there is no separate "expired" status stored in the database.
+
+---
+
+## Configuration
+
+A few behaviours are controlled by constants defined in `wp-warranty-manager/wp-warranty-manager.php`:
+
+| Constant | Default | Purpose |
+|---|---|---|
+| `WPWM_RATE_LIMIT_MAX` | `10` | Max activation attempts allowed per IP within the window |
+| `WPWM_RATE_LIMIT_WINDOW` | `15 * MINUTE_IN_SECONDS` | Length of the rate-limit window |
+| `WPWM_CSV_MAX_SIZE` | `10 * MB_IN_BYTES` | Maximum accepted CSV upload size |
+| `WPWM_TABLE_WARRANTY_CODES` | `warranty_codes` | Warranty codes table suffix (appended to the WordPress table prefix) |
+
+The activation period is currently fixed at **one year** from the activation date and is not configurable.
 
 ---
 

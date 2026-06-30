@@ -274,6 +274,12 @@ class WP_Warranty_Manager
 			$plugin_csv,
 			'import'
 		);
+
+		$this->loader->add_action(
+			'admin_post_download_warranty_sample',
+			$plugin_csv,
+			'download_sample'
+		);
 	}
 
 	/**

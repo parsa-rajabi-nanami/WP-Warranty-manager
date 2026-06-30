@@ -27,6 +27,7 @@ if (! defined('WP_UNINSTALL_PLUGIN')) {
 
 global $wpdb;
 
-$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}warranty_codes");
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}warranty_codes"); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 delete_option('wpwm_db_version');

@@ -11,6 +11,10 @@
  * @package    WP_Warranty_Manager
  * @subpackage WP_Warranty_Manager/public/partials
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 ?>
 
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->

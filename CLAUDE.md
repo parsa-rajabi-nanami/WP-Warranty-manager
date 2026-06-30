@@ -17,9 +17,11 @@ The git repo root contains the actual plugin in the `wp-warranty-manager/` subdi
 - `includes/class-wpwm-loader.php` — boilerplate hook registry; `add_action`/`add_filter` queue hooks, `run()` registers them with WP.
 - `includes/class-wpwm-database.php` + `class-wpwm-activator.php` — table creation on activation via `dbDelta`.
 - `includes/class-wpwm-ajax.php` — front-end warranty activation (the only AJAX endpoint).
-- `includes/class-wpwm-csv-importer.php` — CSV bulk import.
+- `includes/class-wpwm-csv-importer.php` — CSV bulk import (skips an optional `warranty_code` header row, dedups within the file, bulk-inserts as `inactive`) and serves the downloadable sample-CSV template.
+- `includes/class-wpwm-date-helper.php` — shared `WPWM_Date_Helper::format()` for Jalali/Gregorian date output.
 - `includes/class-wpwm-shortcodes.php` — registers `[warranty_form]`.
-- `admin/class-wpwm-admin.php` — admin menu, list/search/paginate, edit, delete. Renders via partials in `admin/partials/`.
+- `admin/class-wpwm-admin.php` — admin menu, asset enqueueing, and read-only rendering (list/search/paginate). Renders via partials in `admin/partials/`.
+- `admin/class-wpwm-admin-actions.php` — admin write actions: edit and delete form handlers.
 - `public/class-wpwm-public.php` — enqueues front-end CSS/JS and `wp_localize_script`s the AJAX url + nonce as `wpWarranty`.
 - `uninstall.php` — drops the table and deletes `wpwm_db_version` option.
 
@@ -53,18 +55,18 @@ Front-end form (`[warranty_form]`) → jQuery in `public/js/wpwm-public.js` POST
   - CSV import: `admin_post_import_warranty_csv`, nonce `import_warranty_csv_nonce`.
   - Edit: `admin_post_edit_warranty_code`, nonce `edit_warranty_code_nonce`.
   - Delete: `admin_post_delete_warranty_code`, nonce `delete_warranty_code_nonce`.
+  - Sample CSV download: `admin_post_download_warranty_sample`, nonce `download_warranty_sample_nonce`.
 - Admin handlers gate on `current_user_can('manage_options')` + `check_admin_referer(...)`, then redirect (PRG pattern). AJAX uses `check_ajax_referer(...)`.
 - Admin classes do no HTML; `WPWM_Admin::render()` `extract()`s a data array and `include`s a partial from `admin/partials/`.
 - All SQL goes through `$wpdb->prepare` / `$wpdb->insert`/`update`/`delete`. Every PHP entry file guards with `if (!defined('ABSPATH')) exit;`.
 
 ## Localization / Persian calendar
 
-This plugin targets a Persian (Iranian) audience. `to_jalali()` (duplicated in `WPWM_Ajax` and `WPWM_Admin`) converts dates to the Jalali calendar **if the WP-Parsidate plugin is active** (`function_exists('parsidate')`), and silently falls back to Gregorian `date()` otherwise. Translatable strings use `__()`/`esc_html_e()` etc.; the catalog is `languages/wp-warranty-manager.pot`.
+This plugin targets a Persian (Iranian) audience. `WPWM_Date_Helper::format()` (in `includes/class-wpwm-date-helper.php`) converts dates to the Jalali calendar **if the WP-Parsidate plugin is active** (`function_exists('parsidate')`), and silently falls back to Gregorian `wp_date()` otherwise. All date output (admin list and AJAX responses) goes through this shared helper. Translatable strings use `__()`/`esc_html_e()` etc.; the catalog is `languages/wp-warranty-manager.pot` (currently an empty placeholder — regenerate with the WP-CLI i18n tools before shipping translations).
 
 ## Unimplemented features — do not assume these exist
 
-- CSV `product_name` and `warranty_period` columns: the importer reads the **first** CSV column only (`$data[0]`); everything else is ignored, and the table has no columns for them.
-- CSV import does **not** skip a header row — a `warranty_code` header line is imported as a literal code.
+- CSV `product_name` and `warranty_period` columns: the importer reads the **first** CSV column only (`str_getcsv($line)[0]`); everything else is ignored, and the table has no columns for them. (A first row equal to the literal `warranty_code` is treated as a header and skipped.)
 - Warranty duration is **hardcoded to +1 year** in `WPWM_Ajax`; it is not configurable.
 - A separate status-check / inquiry flow: only activation exists. Only `inactive`/`active` are stored.
 

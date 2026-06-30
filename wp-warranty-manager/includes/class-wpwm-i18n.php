@@ -36,11 +36,6 @@ class WPWM_i18n
 	 */
 	public function load_plugin_textdomain()
 	{
-
-		load_plugin_textdomain(
-			'wp-warranty-manager',
-			false,
-			dirname(dirname(plugin_basename(__FILE__))) . '/languages/'
-		);
+		// WordPress 4.6+ loads translations automatically for plugins on WordPress.org.
 	}
 }

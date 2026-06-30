@@ -9,13 +9,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
----
-
-## [1.0.0] - 2026-06-30
-
 ### Added
 - Admin dashboard: list, search, paginate, edit, and delete warranty codes
-- CSV bulk-import of warranty codes (first column, one code per row)
+- CSV bulk-import of warranty codes (first column, one code per row); an optional `warranty_code` header row is detected and skipped
+- Downloadable sample CSV template from the admin import screen
 - `[warranty_form]` shortcode for front-end warranty activation
 - AJAX activation endpoint (`wp_activate_warranty`) for logged-in and guest users
 - Rate limiting on activation endpoint: 10 attempts per 15-minute window per IP
@@ -24,5 +21,4 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Nonce verification, capability checks, and `$wpdb->prepare()` throughout
 - Defined `WPWM_TABLE_WARRANTY_CODES`, `WPWM_RATE_LIMIT_MAX`, `WPWM_RATE_LIMIT_WINDOW`, `WPWM_CSV_MAX_SIZE` constants
 
-[Unreleased]: https://github.com/parsa-rajabi-nanami/WP-Warranty-manager/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/parsa-rajabi-nanami/WP-Warranty-manager/releases/tag/v1.0.0
+[Unreleased]: https://github.com/parsa-rajabi-nanami/WP-Warranty-manager/commits/develop

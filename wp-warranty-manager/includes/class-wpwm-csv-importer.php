@@ -74,9 +74,11 @@ class WPWM_CSV_Importer {
             );
         }
 
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- tmp_name is server-generated, not user-controlled.
         $file_info = wp_check_filetype_and_ext(
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
             $_FILES['csv_file']['tmp_name'],
-            $_FILES['csv_file']['name'],
+            sanitize_file_name( wp_unslash( $_FILES['csv_file']['name'] ) ),
             array( 'csv' => 'text/csv' )
         );
 
@@ -119,7 +121,7 @@ class WPWM_CSV_Importer {
 
         $error = $this->validate_upload();
         if ( $error ) {
-            wp_redirect( add_query_arg(
+            wp_safe_redirect( add_query_arg(
                 array( 'page' => 'warranty-manager', 'import_error' => urlencode( $error ) ),
                 admin_url( 'admin.php' )
             ) );
@@ -172,7 +174,7 @@ class WPWM_CSV_Importer {
 
                 if ( false === $rows_affected ) {
                     $wpdb->query( 'ROLLBACK' );
-                    wp_redirect( add_query_arg(
+                    wp_safe_redirect( add_query_arg(
                         array( 'page' => 'warranty-manager', 'import_error' => urlencode( __( 'Database error during import. No codes were saved.', 'wp-warranty-manager' ) ) ),
                         admin_url( 'admin.php' )
                     ) );
@@ -185,10 +187,38 @@ class WPWM_CSV_Importer {
             $wpdb->query( 'COMMIT' );
         }
 
-        wp_redirect( add_query_arg(
+        wp_safe_redirect( add_query_arg(
             array( 'page' => 'warranty-manager', 'imported' => $imported ),
             admin_url( 'admin.php' )
         ) );
+        exit;
+    }
+
+    /**
+     * Stream a sample CSV template for download.
+     *
+     * Serves a small example file in the exact format the importer expects:
+     * a single warranty_code column, one code per row. The first row is the
+     * literal `warranty_code` header, which import() detects and skips.
+     *
+     * Called via admin-post.php on the download_warranty_sample action.
+     *
+     * @since  1.0.0
+     * @return void
+     */
+    public function download_sample() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( esc_html__( 'Unauthorized access.', 'wp-warranty-manager' ) );
+        }
+
+        check_admin_referer( 'download_warranty_sample_nonce' );
+
+        nocache_headers();
+        header( 'Content-Type: text/csv; charset=utf-8' );
+        header( 'Content-Disposition: attachment; filename=sample-warranty-codes.csv' );
+
+        // Plain literal output: the header row matches the column import() recognizes and skips.
+        echo "warranty_code\r\nABC123456\r\nXYZ987654\r\nTEST112233\r\n";
         exit;
     }
 }
