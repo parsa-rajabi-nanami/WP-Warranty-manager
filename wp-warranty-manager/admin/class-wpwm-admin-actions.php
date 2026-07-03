@@ -9,7 +9,6 @@
  * @package    WP_Warranty_Manager
  * @subpackage WP_Warranty_Manager/admin
  */
-
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
