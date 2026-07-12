@@ -51,7 +51,6 @@ Open a **Feature Request** using the issue template and describe the use case cl
 ```bash
 git clone https://github.com/parsa-rajabi-nanami/WP-Warranty-manager.git
 cd WP-Warranty-manager
-bash scripts/setup-dev.sh
 ```
 
 The setup script checks prerequisites and prints next steps for your chosen local environment (wp-env, Local, or Docker).

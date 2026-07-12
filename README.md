@@ -138,7 +138,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide. Quick start:
 ```bash
 git clone https://github.com/parsa-rajabi-nanami/WP-Warranty-manager.git
 cd WP-Warranty-manager
-bash scripts/setup-dev.sh
 ```
 
 ### Linting

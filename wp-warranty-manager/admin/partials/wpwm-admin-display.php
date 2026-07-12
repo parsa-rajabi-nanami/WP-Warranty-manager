@@ -70,7 +70,7 @@ $base_url     = $view_data['base_url'];
     <hr>
     <h2><?php esc_html_e('Import CSV File', 'wp-warranty-manager'); ?></h2>
     <p class="description">
-        <?php esc_html_e('The CSV file must have one column where each row is a warranty code. An optional first row containing the header "warranty_code" is detected and skipped.', 'wp-warranty-manager'); ?>
+        <?php esc_html_e('The CSV file must have one column where each row is a warranty code. An optional first row containing the header "warranty_code" is detected and skipped. To display the warranty registration form on the front end of your website, use the shortcode [warranty_form].', 'wp-warranty-manager'); ?>
     </p>
 
     <form method="post" enctype="multipart/form-data" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">

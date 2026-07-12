@@ -147,9 +147,9 @@ class WPWM_Admin {
         );
 
         add_submenu_page(
-            'warranty-manager',
+            'options.php',
             __( 'Edit Warranty', 'wp-warranty-manager' ),
-            '',
+            __( 'Edit Warranty', 'wp-warranty-manager' ),
             'manage_options',
             'warranty-edit',
             array( $this, 'edit_page' )
