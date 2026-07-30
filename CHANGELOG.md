@@ -21,4 +21,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Nonce verification, capability checks, and `$wpdb->prepare()` throughout
 - Defined `WPWM_TABLE_WARRANTY_CODES`, `WPWM_RATE_LIMIT_MAX`, `WPWM_RATE_LIMIT_WINDOW`, `WPWM_CSV_MAX_SIZE` constants
 
+### Fixed
+- Hardened CSV upload field validation, temporary-file verification, read-error handling, and bulk-query preparation
+- Sanitized read-only admin parameters, escaped pagination output, and prefixed partial-scope variables
+- Prepared admin search/filter queries in one pass and documented intentional custom-table database operations
+
 [Unreleased]: https://github.com/parsa-rajabi-nanami/WP-Warranty-manager/commits/develop

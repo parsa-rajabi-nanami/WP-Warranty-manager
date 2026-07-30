@@ -19,8 +19,8 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-$record  = $view_data['record'];
-$updated = $view_data['updated'];
+$wpwm_record  = $view_data['record'];
+$wpwm_updated = $view_data['updated'];
 ?>
 
 <div class="wrap">
@@ -29,7 +29,7 @@ $updated = $view_data['updated'];
         printf(
             /* translators: %d: warranty record ID */
             esc_html__('Edit Warranty Code #%d', 'wp-warranty-manager'),
-            (int) $record->id
+            (int) $wpwm_record->id
         );
         ?>
     </h1>
@@ -38,7 +38,7 @@ $updated = $view_data['updated'];
         ← <?php esc_html_e('Back', 'wp-warranty-manager'); ?>
     </a>
 
-    <?php if ($updated) : ?>
+    <?php if ($wpwm_updated) : ?>
         <div class="notice notice-success is-dismissible wpwm-notice--top">
             <p><?php esc_html_e('Warranty code updated successfully.', 'wp-warranty-manager'); ?></p>
         </div>
@@ -48,7 +48,7 @@ $updated = $view_data['updated'];
 
     <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
         <input type="hidden" name="action" value="edit_warranty_code">
-        <input type="hidden" name="id" value="<?php echo esc_attr($record->id); ?>">
+        <input type="hidden" name="id" value="<?php echo esc_attr($wpwm_record->id); ?>">
         <?php wp_nonce_field('edit_warranty_code_nonce'); ?>
 
         <table class="form-table">
@@ -59,7 +59,7 @@ $updated = $view_data['updated'];
                         type="text"
                         id="warranty_code"
                         name="warranty_code"
-                        value="<?php echo esc_attr($record->warranty_code); ?>"
+                        value="<?php echo esc_attr($wpwm_record->warranty_code); ?>"
                         class="regular-text"
                         required>
                 </td>
@@ -68,10 +68,10 @@ $updated = $view_data['updated'];
                 <th><label for="status"><?php esc_html_e('Status', 'wp-warranty-manager'); ?></label></th>
                 <td>
                     <select id="status" name="status">
-                        <option value="inactive" <?php selected($record->status, 'inactive'); ?>>
+                        <option value="inactive" <?php selected($wpwm_record->status, 'inactive'); ?>>
                             <?php esc_html_e('Inactive', 'wp-warranty-manager'); ?>
                         </option>
-                        <option value="active" <?php selected($record->status, 'active'); ?>>
+                        <option value="active" <?php selected($wpwm_record->status, 'active'); ?>>
                             <?php esc_html_e('Active', 'wp-warranty-manager'); ?>
                         </option>
                     </select>
@@ -84,7 +84,7 @@ $updated = $view_data['updated'];
                         type="datetime-local"
                         id="activated_at"
                         name="activated_at"
-                        value="<?php echo $record->activated_at ? esc_attr(wp_date('Y-m-d\TH:i', strtotime($record->activated_at))) : ''; ?>">
+                        value="<?php echo $wpwm_record->activated_at ? esc_attr(wp_date('Y-m-d\TH:i', strtotime($wpwm_record->activated_at))) : ''; ?>">
                     <p class="description"><?php esc_html_e('Leave empty to clear the activation date.', 'wp-warranty-manager'); ?></p>
                 </td>
             </tr>
@@ -95,7 +95,7 @@ $updated = $view_data['updated'];
                         type="datetime-local"
                         id="expires_at"
                         name="expires_at"
-                        value="<?php echo $record->expires_at ? esc_attr(wp_date('Y-m-d\TH:i', strtotime($record->expires_at))) : ''; ?>">
+                        value="<?php echo $wpwm_record->expires_at ? esc_attr(wp_date('Y-m-d\TH:i', strtotime($wpwm_record->expires_at))) : ''; ?>">
                     <p class="description"><?php esc_html_e('Leave empty to clear the expiration date.', 'wp-warranty-manager'); ?></p>
                 </td>
             </tr>
@@ -106,7 +106,7 @@ $updated = $view_data['updated'];
                         type="text"
                         id="customer_ip"
                         name="customer_ip"
-                        value="<?php echo esc_attr($record->customer_ip); ?>"
+                        value="<?php echo esc_attr($wpwm_record->customer_ip); ?>"
                         class="regular-text">
                 </td>
             </tr>

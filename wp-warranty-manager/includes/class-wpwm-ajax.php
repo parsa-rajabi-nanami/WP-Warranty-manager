@@ -151,6 +151,7 @@ class WPWM_Ajax
         $expires_at   = wp_date('Y-m-d H:i:s', strtotime('+1 year', current_time('timestamp')));
         $ip           = $this->get_client_ip();
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Atomic write to the plugin's custom table; no object cache is used for warranty records.
         $wpdb->update(
             $this->table_name,
             array(

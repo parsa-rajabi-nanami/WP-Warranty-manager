@@ -176,25 +176,37 @@ class WPWM_Admin {
         $current_page = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) : 1;
         $offset       = ( $current_page - 1 ) * $per_page;
 
-        $where = 'WHERE 1=1';
+        $where       = 'WHERE 1=1';
+        $query_args  = array();
+
         if ( $search ) {
-            $where .= $wpdb->prepare( ' AND warranty_code LIKE %s', '%' . $wpdb->esc_like( $search ) . '%' );
+            $where        .= ' AND warranty_code LIKE %s';
+            $query_args[] = '%' . $wpdb->esc_like( $search ) . '%';
         }
         if ( in_array( $filter, array( 'active', 'inactive' ), true ) ) {
-            $where .= $wpdb->prepare( ' AND status = %s', $filter );
+            $where        .= ' AND status = %s';
+            $query_args[] = $filter;
         }
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $total_items = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$this->table_name} {$where}" );
-        $total_pages = ceil( $total_items / $per_page );
+        // The table name and WHERE structure are trusted; all request-derived values are bound below.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $count_query = "SELECT COUNT(*) FROM {$this->table_name} {$where}";
+        if ( ! empty( $query_args ) ) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query structure is fixed above and values are passed separately.
+            $count_query = $wpdb->prepare( $count_query, $query_args );
+        }
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        $results = $wpdb->get_results( $wpdb->prepare(
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            "SELECT * FROM {$this->table_name} {$where} ORDER BY id DESC LIMIT %d OFFSET %d",
-            $per_page,
-            $offset
-        ) );
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom-table query is prepared above when it contains request data.
+        $total_items = (int) $wpdb->get_var( $count_query );
+        $total_pages = (int) ceil( $total_items / $per_page );
+
+        $results_args   = array_merge( $query_args, array( $per_page, $offset ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name and WHERE structure are trusted; values are bound below.
+        $results_query  = "SELECT * FROM {$this->table_name} {$where} ORDER BY id DESC LIMIT %d OFFSET %d";
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query structure is fixed above and values are passed separately.
+        $results_query  = $wpdb->prepare( $results_query, $results_args );
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom-table query is fully prepared above.
+        $results        = $wpdb->get_results( $results_query );
 
         $base_url = admin_url( 'admin.php?page=warranty-manager' );
         if ( $search ) { $base_url .= '&s=' . urlencode( $search ); }
@@ -228,7 +240,11 @@ class WPWM_Admin {
 
         global $wpdb;
 
-        $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+        // These query parameters select a read-only admin view and display its status notice.
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended
+        $id      = isset( $_GET['id'] ) ? absint( wp_unslash( $_GET['id'] ) ) : 0;
+        $updated = isset( $_GET['updated'] ) && '1' === sanitize_key( wp_unslash( $_GET['updated'] ) );
+        // phpcs:enable WordPress.Security.NonceVerification.Recommended
 
         if ( ! $id ) {
             wp_safe_redirect( admin_url( 'admin.php?page=warranty-manager' ) );
@@ -248,7 +264,7 @@ class WPWM_Admin {
 
         $view_data = array(
             'record'  => $record,
-            'updated' => isset( $_GET['updated'] ) && '1' === $_GET['updated'],
+            'updated' => $updated,
         );
 
         $this->render( 'wpwm-admin-edit-display', $view_data );

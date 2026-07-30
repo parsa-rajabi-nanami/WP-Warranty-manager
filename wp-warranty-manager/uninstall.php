@@ -27,6 +27,7 @@ if (! defined('WP_UNINSTALL_PLUGIN')) {
 
 global $wpdb;
 
+// Intentionally remove the plugin's custom database table during uninstall.
 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
 $wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}warranty_codes"); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 

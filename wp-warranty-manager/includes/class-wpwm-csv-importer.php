@@ -12,7 +12,7 @@
  * @subpackage WP_Warranty_Manager/includes
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
@@ -27,7 +27,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @subpackage WP_Warranty_Manager/includes
  * @author     Parsa Rajabi
  */
-class WPWM_CSV_Importer {
+class WPWM_CSV_Importer
+{
 
     /**
      * Full name of the warranty codes table, including the WP prefix.
@@ -42,7 +43,8 @@ class WPWM_CSV_Importer {
      *
      * @since  1.0.0
      */
-    public function __construct() {
+    public function __construct()
+    {
         global $wpdb;
 
         $this->table_name = $wpdb->prefix . WPWM_TABLE_WARRANTY_CODES;
@@ -55,46 +57,63 @@ class WPWM_CSV_Importer {
      * Returns a translated error string on failure, or an empty string on success.
      *
      * @since  1.0.0
-     * @return string  Error message, or '' when valid.
+     * @param  array $file Uploaded file data from the CSV form.
+     * @return string Error message, or '' when valid.
      */
-    private function validate_upload() {
-        if ( empty( $_FILES['csv_file']['tmp_name'] ) || ! isset( $_FILES['csv_file']['error'] ) ) {
-            return __( 'No file was uploaded.', 'wp-warranty-manager' );
+    private function validate_upload($file)
+    {
+        $required_keys = array('error', 'name', 'size', 'tmp_name', 'type');
+
+        foreach ($required_keys as $required_key) {
+            if (! array_key_exists($required_key, $file)) {
+                return __('No file was uploaded.', 'wp-warranty-manager');
+            }
         }
 
-        if ( UPLOAD_ERR_OK !== (int) $_FILES['csv_file']['error'] ) {
-            return __( 'File upload error. Please try again.', 'wp-warranty-manager' );
+        if (! is_string($file['tmp_name']) || '' === $file['tmp_name']) {
+            return __('No file was uploaded.', 'wp-warranty-manager');
         }
 
-        if ( (int) $_FILES['csv_file']['size'] > WPWM_CSV_MAX_SIZE ) {
+        if (UPLOAD_ERR_OK !== (int) $file['error']) {
+            return __('File upload error. Please try again.', 'wp-warranty-manager');
+        }
+
+        if ((int) $file['size'] > WPWM_CSV_MAX_SIZE) {
             return sprintf(
                 /* translators: %d: max allowed megabytes */
-                __( 'File exceeds the maximum allowed size of %d MB.', 'wp-warranty-manager' ),
+                __('File exceeds the maximum allowed size of %d MB.', 'wp-warranty-manager'),
                 WPWM_CSV_MAX_SIZE / MB_IN_BYTES
             );
         }
 
-        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- tmp_name is server-generated, not user-controlled.
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- PHP generates and validates upload temp paths.
+        $uploaded_file = $file['tmp_name'];
+        if (! is_uploaded_file($uploaded_file)) {
+            return __('File upload error. Please try again.', 'wp-warranty-manager');
+        }
+
+        $file_name = sanitize_file_name(wp_unslash($file['name']));
+        $file_type = sanitize_mime_type(wp_unslash($file['type']));
+
         $file_info = wp_check_filetype_and_ext(
-            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-            $_FILES['csv_file']['tmp_name'],
-            sanitize_file_name( wp_unslash( $_FILES['csv_file']['name'] ) ),
-            array( 'csv' => 'text/csv' )
+            $uploaded_file,
+            $file_name,
+            array('csv' => 'text/csv')
         );
 
-        $allowed_ext   = array( 'csv' );
-        $allowed_types = array( 'text/csv', 'text/plain', 'application/csv', 'application/vnd.ms-excel' );
-        $ext           = strtolower( pathinfo( sanitize_file_name( $_FILES['csv_file']['name'] ), PATHINFO_EXTENSION ) );
+        $allowed_ext   = array('csv');
+        $allowed_types = array('text/csv', 'text/plain', 'application/csv', 'application/vnd.ms-excel');
+        $ext           = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
 
-        if ( ! in_array( $ext, $allowed_ext, true ) ) {
-            return __( 'Only .csv files are allowed.', 'wp-warranty-manager' );
+        if (! in_array($ext, $allowed_ext, true)) {
+            return __('Only .csv files are allowed.', 'wp-warranty-manager');
         }
 
         // wp_check_filetype_and_ext returns false ext/type when the real MIME doesn't match.
         // Fall back to checking the reported MIME type from the browser as a secondary gate.
-        $mime = $file_info['type'] ?: sanitize_text_field( $_FILES['csv_file']['type'] );
-        if ( ! in_array( $mime, $allowed_types, true ) ) {
-            return __( 'Invalid file type. Please upload a valid CSV file.', 'wp-warranty-manager' );
+        $mime = ! empty($file_info['type']) ? $file_info['type'] : $file_type;
+        if (! in_array($mime, $allowed_types, true)) {
+            return __('Invalid file type. Please upload a valid CSV file.', 'wp-warranty-manager');
         }
 
         return '';
@@ -112,85 +131,102 @@ class WPWM_CSV_Importer {
      * @since  1.0.0
      * @return void
      */
-    public function import() {
-        if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Unauthorized access.', 'wp-warranty-manager' ) );
+    public function import()
+    {
+        if (! current_user_can('manage_options')) {
+            wp_die(esc_html__('Unauthorized access.', 'wp-warranty-manager'));
         }
 
-        check_admin_referer( 'import_warranty_csv_nonce' );
+        check_admin_referer('import_warranty_csv_nonce');
 
-        $error = $this->validate_upload();
-        if ( $error ) {
-            wp_safe_redirect( add_query_arg(
-                array( 'page' => 'warranty-manager', 'import_error' => urlencode( $error ) ),
-                admin_url( 'admin.php' )
-            ) );
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- validate_upload() validates every field and must preserve PHP's exact upload temp path.
+        $file  = isset($_FILES['csv_file']) && is_array($_FILES['csv_file']) ? $_FILES['csv_file'] : array();
+        $error = $this->validate_upload($file);
+        if ($error) {
+            wp_safe_redirect(add_query_arg(
+                array('page' => 'warranty-manager', 'import_error' => urlencode($error)),
+                admin_url('admin.php')
+            ));
             exit;
         }
 
         global $wpdb;
 
         // Normalize line endings: \r\n (Windows) and \r (old Mac) → \n
-        $raw   = file_get_contents( $_FILES['csv_file']['tmp_name'] );
-        $raw   = str_replace( array( "\r\n", "\r" ), "\n", $raw );
-        $lines = array_values( array_filter( array_map( 'trim', explode( "\n", $raw ) ) ) );
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- validate_upload() verifies the PHP upload temp path.
+        $uploaded_file = $file['tmp_name'];
+        $raw           = file_get_contents($uploaded_file);
+        if (false === $raw) {
+            wp_safe_redirect(add_query_arg(
+                array('page' => 'warranty-manager', 'import_error' => urlencode(__('File upload error. Please try again.', 'wp-warranty-manager'))),
+                admin_url('admin.php')
+            ));
+            exit;
+        }
+
+        $raw   = str_replace(array("\r\n", "\r"), "\n", $raw);
+        $lines = array_values(array_filter(array_map('trim', explode("\n", $raw))));
 
         // Skip a header row when the first non-empty cell is the literal column name.
-        if ( ! empty( $lines ) ) {
-            $first_cell = strtolower( trim( str_getcsv( $lines[0], ',' )[0] ?? '' ) );
-            if ( 'warranty_code' === $first_cell ) {
-                array_shift( $lines );
+        if (! empty($lines)) {
+            $first_cell = strtolower(trim(str_getcsv($lines[0], ',')[0] ?? ''));
+            if ('warranty_code' === $first_cell) {
+                array_shift($lines);
             }
         }
 
         // Parse and sanitize all codes first, discarding blanks and duplicates.
         $codes = array();
-        foreach ( $lines as $line ) {
-            $code = sanitize_text_field( trim( str_getcsv( $line, ',' )[0] ?? '' ) );
-            if ( '' !== $code ) {
-                $codes[ $code ] = true; // key-dedup within the file itself
+        foreach ($lines as $line) {
+            $code = sanitize_text_field(trim(str_getcsv($line, ',')[0] ?? ''));
+            if ('' !== $code) {
+                $codes[$code] = true; // key-dedup within the file itself
             }
         }
-        $codes = array_keys( $codes );
+        $codes = array_keys($codes);
 
         $imported = 0;
 
-        if ( ! empty( $codes ) ) {
+        if (! empty($codes)) {
             // Bulk insert in chunks of 200 rows per query to avoid huge SQL strings.
-            $chunks = array_chunk( $codes, 200 );
+            $chunks = array_chunk($codes, 200);
 
-            $wpdb->query( 'START TRANSACTION' );
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Transaction control has no CRUD helper and is not cacheable.
+            $wpdb->query('START TRANSACTION');
 
-            foreach ( $chunks as $chunk ) {
-                $placeholders = implode( ', ', array_fill( 0, count( $chunk ), "(%s, 'inactive')" ) );
-                // phpcs:ignore WordPress.DB.PreparedSQLNotPrepared
+            foreach ($chunks as $chunk) {
+                $placeholders = implode(', ', array_fill(0, count($chunk), "(%s, 'inactive')"));
+
                 $rows_affected = $wpdb->query(
                     $wpdb->prepare(
-                        // INSERT IGNORE silently skips rows that violate the UNIQUE KEY on warranty_code.
+                        // The table name is derived from $wpdb->prefix and the placeholder list is generated locally.
+                        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
                         "INSERT IGNORE INTO {$this->table_name} (warranty_code, status) VALUES {$placeholders}",
                         $chunk
                     )
                 );
 
-                if ( false === $rows_affected ) {
-                    $wpdb->query( 'ROLLBACK' );
-                    wp_safe_redirect( add_query_arg(
-                        array( 'page' => 'warranty-manager', 'import_error' => urlencode( __( 'Database error during import. No codes were saved.', 'wp-warranty-manager' ) ) ),
-                        admin_url( 'admin.php' )
-                    ) );
+                if (false === $rows_affected) {
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Transaction control has no CRUD helper and is not cacheable.
+                    $wpdb->query('ROLLBACK');
+                    wp_safe_redirect(add_query_arg(
+                        array('page' => 'warranty-manager', 'import_error' => urlencode(__('Database error during import. No codes were saved.', 'wp-warranty-manager'))),
+                        admin_url('admin.php')
+                    ));
                     exit;
                 }
 
                 $imported += (int) $rows_affected;
             }
 
-            $wpdb->query( 'COMMIT' );
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Transaction control has no CRUD helper and is not cacheable.
+            $wpdb->query('COMMIT');
         }
 
-        wp_safe_redirect( add_query_arg(
-            array( 'page' => 'warranty-manager', 'imported' => $imported ),
-            admin_url( 'admin.php' )
-        ) );
+        wp_safe_redirect(add_query_arg(
+            array('page' => 'warranty-manager', 'imported' => $imported),
+            admin_url('admin.php')
+        ));
         exit;
     }
 
@@ -206,16 +242,17 @@ class WPWM_CSV_Importer {
      * @since  1.0.0
      * @return void
      */
-    public function download_sample() {
-        if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Unauthorized access.', 'wp-warranty-manager' ) );
+    public function download_sample()
+    {
+        if (! current_user_can('manage_options')) {
+            wp_die(esc_html__('Unauthorized access.', 'wp-warranty-manager'));
         }
 
-        check_admin_referer( 'download_warranty_sample_nonce' );
+        check_admin_referer('download_warranty_sample_nonce');
 
         nocache_headers();
-        header( 'Content-Type: text/csv; charset=utf-8' );
-        header( 'Content-Disposition: attachment; filename=sample-warranty-codes.csv' );
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename=sample-warranty-codes.csv');
 
         // Plain literal output: the header row matches the column import() recognizes and skips.
         echo "warranty_code\r\nABC123456\r\nXYZ987654\r\nTEST112233\r\n";
