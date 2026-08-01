@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a bug in WP Warranty Manager
+description: Report a bug in Warranty Code Manager
 labels: ["bug", "needs-triage"]
 body:
   - type: markdown

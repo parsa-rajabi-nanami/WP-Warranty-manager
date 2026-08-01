@@ -1,4 +1,4 @@
-# WP Warranty Manager
+# Warranty Code Manager
 
 A WordPress plugin for managing and activating product warranty codes. Administrators bulk-import codes via CSV from the WordPress dashboard; customers activate a warranty through a front-end shortcode form.
 
@@ -39,9 +39,9 @@ A WordPress plugin for managing and activating product warranty codes. Administr
 ### From source
 
 1. Clone or download this repository.
-2. Copy the `wp-warranty-manager/` subdirectory into your WordPress install:
+2. Copy the `warranty-code-manager/` subdirectory into your WordPress install:
    ```
-   wp-content/plugins/wp-warranty-manager/
+   wp-content/plugins/warranty-code-manager/
    ```
 3. Activate the plugin from **WordPress Admin → Plugins**.
 4. The database table is created automatically on activation.
@@ -58,7 +58,7 @@ wp plugin install https://github.com/parsa-rajabi-nanami/WP-Warranty-manager/arc
 
 ### 1. Import warranty codes
 
-Go to **WordPress Admin → Warranty Manager**. The import form is on the main page.
+Go to **WordPress Admin → Warranty Code Manager**. The import form is on the main page.
 
 Each row holds one warranty code in the **first column**. A first row containing the literal header `warranty_code` is optional — it is detected and skipped automatically. Any extra columns are ignored.
 
@@ -97,14 +97,14 @@ Expiry is determined by the `expires_at` timestamp; there is no separate "expire
 
 ## Configuration
 
-A few behaviours are controlled by constants defined in `wp-warranty-manager/wp-warranty-manager.php`:
+A few behaviours are controlled by constants defined in `warranty-code-manager/warranty-code-manager.php`:
 
 | Constant | Default | Purpose |
 |---|---|---|
-| `WPWM_RATE_LIMIT_MAX` | `10` | Max activation attempts allowed per IP within the window |
-| `WPWM_RATE_LIMIT_WINDOW` | `15 * MINUTE_IN_SECONDS` | Length of the rate-limit window |
-| `WPWM_CSV_MAX_SIZE` | `10 * MB_IN_BYTES` | Maximum accepted CSV upload size |
-| `WPWM_TABLE_WARRANTY_CODES` | `warranty_codes` | Warranty codes table suffix (appended to the WordPress table prefix) |
+| `WCMGR_RATE_LIMIT_MAX` | `10` | Max activation attempts allowed per IP within the window |
+| `WCMGR_RATE_LIMIT_WINDOW` | `15 * MINUTE_IN_SECONDS` | Length of the rate-limit window |
+| `WCMGR_CSV_MAX_SIZE` | `10 * MB_IN_BYTES` | Maximum accepted CSV upload size |
+| `WCMGR_TABLE_WARRANTY_CODES` | `warranty_codes` | Warranty codes table suffix (appended to the WordPress table prefix) |
 
 The activation period is currently fixed at **one year** from the activation date and is not configurable.
 
@@ -136,15 +136,15 @@ See [SECURITY.md](SECURITY.md) to report a vulnerability.
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide. Quick start:
 
 ```bash
-git clone https://github.com/parsa-rajabi-nanami/WP-Warranty-manager.git
-cd WP-Warranty-manager
+git clone https://github.com/parsa-rajabi-nanami/WP-Warranty-manager.git Warranty-Code-Manager
+cd Warranty-Code-Manager
 ```
 
 ### Linting
 
 ```bash
 # PHP syntax check
-find wp-warranty-manager -name "*.php" -exec php -l {} \;
+find warranty-code-manager -name "*.php" -exec php -l {} \;
 ```
 
 ---

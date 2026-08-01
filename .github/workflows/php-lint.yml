@@ -4,10 +4,10 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - "wp-warranty-manager/**/*.php"
+      - "warranty-code-manager/**/*.php"
   pull_request:
     paths:
-      - "wp-warranty-manager/**/*.php"
+      - "warranty-code-manager/**/*.php"
 
 jobs:
   lint:
@@ -34,5 +34,5 @@ jobs:
           ERROR=0
           while IFS= read -r -d '' file; do
             php -l "$file" || ERROR=1
-          done < <(find wp-warranty-manager -name "*.php" -print0)
+          done < <(find warranty-code-manager -name "*.php" -print0)
           exit $ERROR

@@ -16,8 +16,8 @@
 
 ## Checklist
 
-- [ ] PHP syntax passes: `find wp-warranty-manager -name "*.php" -exec php -l {} \;`
-- [ ] New hooks wired through `class-wpwm.php` loader, not added directly in feature classes
+- [ ] PHP syntax passes: `find warranty-code-manager -name "*.php" -exec php -l {} \;`
+- [ ] New hooks wired through `class-wcmgr.php` loader, not added directly in feature classes
 - [ ] New SQL uses `$wpdb->prepare()` / insert / update / delete
 - [ ] New admin actions include `current_user_can('manage_options')` + `check_admin_referer()`
 - [ ] CHANGELOG.md updated under `[Unreleased]`

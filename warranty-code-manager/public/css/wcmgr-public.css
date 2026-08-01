@@ -1,0 +1,44 @@
+/**
+ * All of the CSS for your public-facing functionality should be
+ * included in this file.
+ */
+
+.wcmgr-warranty-box {
+    max-width: 500px;
+    margin: auto;
+    padding: 25px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
+}
+
+.wcmgr-warranty-box input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.wcmgr-warranty-box button {
+    background: #2271b1;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.wcmgr-warranty-message {
+    display: none;
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #f5f5f5;
+}
+
+.wcmgr-warranty-loading {
+    opacity: .6;
+    pointer-events: none;
+}

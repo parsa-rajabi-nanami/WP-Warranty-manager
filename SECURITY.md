@@ -34,4 +34,4 @@ Once the vulnerability is confirmed, a patch will be prepared and a coordinated 
 - User input is sanitised with WordPress sanitization functions before use
 - Rate limiting on the AJAX activation endpoint (10 attempts / 15-minute window / IP)
 - All PHP entry files guard against direct access with `if (!defined('ABSPATH')) exit;`
-- File upload restricted to `.csv` MIME type with a configurable size cap (`WPWM_CSV_MAX_SIZE`, default 10 MB)
+- File upload restricted to `.csv` MIME type with a configurable size cap (`WCMGR_CSV_MAX_SIZE`, default 10 MB)

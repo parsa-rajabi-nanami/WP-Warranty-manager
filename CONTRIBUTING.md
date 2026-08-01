@@ -1,4 +1,4 @@
-# Contributing to WP Warranty Manager
+# Contributing to Warranty Code Manager
 
 Thank you for taking the time to contribute.
 
@@ -49,22 +49,22 @@ Open a **Feature Request** using the issue template and describe the use case cl
 ### Quick start
 
 ```bash
-git clone https://github.com/parsa-rajabi-nanami/WP-Warranty-manager.git
-cd WP-Warranty-manager
+git clone https://github.com/parsa-rajabi-nanami/WP-Warranty-manager.git Warranty-Code-Manager
+cd Warranty-Code-Manager
 ```
 
 The setup script checks prerequisites and prints next steps for your chosen local environment (wp-env, Local, or Docker).
 
 ### Manual setup
 
-1. Copy `wp-warranty-manager/` into `wp-content/plugins/` of a local WordPress install.
+1. Copy `warranty-code-manager/` into `wp-content/plugins/` of a local WordPress install.
 2. Activate the plugin from the WordPress admin.
 3. The `{prefix}warranty_codes` database table is created automatically.
 
 ### Running the linter
 
 ```bash
-find wp-warranty-manager -name "*.php" -exec php -l {} \;
+find warranty-code-manager -name "*.php" -exec php -l {} \;
 ```
 
 ---
@@ -74,7 +74,7 @@ find wp-warranty-manager -name "*.php" -exec php -l {} \;
 ### Architecture rules
 
 - **Do not** call `add_action` / `add_filter` / `add_shortcode` directly inside feature classes.
-- All hooks are registered in `includes/class-wpwm.php` → `define_*_hooks()` methods via the loader.
+- All hooks are registered in `includes/class-wcmgr.php` → `define_*_hooks()` methods via the loader.
 - To add a new hook: create or extend a class, `require_once` it in `load_dependencies()`, queue it through the loader.
 - Admin classes render no HTML directly — they `extract()` a data array and `include` a partial from `admin/partials/`.
 - All SQL must go through `$wpdb->prepare()`, `$wpdb->insert()`, `$wpdb->update()`, or `$wpdb->delete()`.
@@ -102,8 +102,8 @@ docs: update CSV import instructions
 
 ## Pull request checklist
 
-- [ ] PHP syntax passes: `find wp-warranty-manager -name "*.php" -exec php -l {} \;`
-- [ ] All new hooks wired through `class-wpwm.php`, not added directly in feature classes
+- [ ] PHP syntax passes: `find warranty-code-manager -name "*.php" -exec php -l {} \;`
+- [ ] All new hooks wired through `class-wcmgr.php`, not added directly in feature classes
 - [ ] New SQL uses `$wpdb->prepare()` / insert / update / delete
 - [ ] New admin actions include `current_user_can('manage_options')` + `check_admin_referer()`
 - [ ] CHANGELOG.md updated under `[Unreleased]`
@@ -120,15 +120,15 @@ Key conventions used in this codebase:
 
 | Convention | Example |
 |---|---|
-| Class prefix | `WPWM_*` |
-| Option / meta prefix | `wpwm_*` |
-| Hook / action names | `wp_warranty_*` |
-| Text domain | `wp-warranty-manager` |
+| Class prefix | `WCMGR_*` |
+| Option / meta prefix | `wcmgr_*` |
+| Hook / action names | `wcmgr_*` |
+| Text domain | `warranty-code-manager` |
 | ABSPATH guard | Every PHP entry file |
 
 Optionally install [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) with the [WordPress standard](https://github.com/WordPress/WordPress-Coding-Standards) to check locally:
 
 ```bash
 composer require --dev squizlabs/php_codesniffer wp-coding-standards/wpcs
-./vendor/bin/phpcs --standard=WordPress wp-warranty-manager/
+./vendor/bin/phpcs --standard=WordPress warranty-code-manager/
 ```

@@ -8,23 +8,23 @@ Before editing, read relevant files fully and trace the affected flow. Make the 
 
 ## Project Structure & Module Organization
 
-The plugin lives in `wp-warranty-manager/`; `wp-warranty-manager.php` is its bootstrap. Services, database access, AJAX, shortcodes, imports, and the hook loader belong in `includes/`. Dashboard code lives in `admin/`; front-end code and assets in `public/`; translations in `languages/`.
+The plugin lives in `warranty-code-manager/`; `warranty-code-manager.php` is its bootstrap. Services, database access, AJAX, shortcodes, imports, and the hook loader belong in `includes/`. Dashboard code lives in `admin/`; front-end code and assets in `public/`; translations in `languages/`.
 
-Register actions, filters, and shortcodes through the loader methods in `includes/class-wpwm.php`. Feature classes should implement callbacks, not call `add_action()`, `add_filter()`, or `add_shortcode()` directly.
+Register actions, filters, and shortcodes through the loader methods in `includes/class-wcmgr.php`. Feature classes should implement callbacks, not call `add_action()`, `add_filter()`, or `add_shortcode()` directly.
 
 ## Build, Test, and Development Commands
 
-There is no build step. Develop on WordPress 6.0+ and PHP 8.0+ by placing `wp-warranty-manager/` in `wp-content/plugins/` and activating it.
+There is no build step. Develop on WordPress 6.0+ and PHP 8.0+ by placing `warranty-code-manager/` in `wp-content/plugins/` and activating it.
 
 ```bash
-find wp-warranty-manager -name "*.php" -exec php -l {} \;
+find warranty-code-manager -name "*.php" -exec php -l {} \;
 ```
 
 Run this before every push; GitHub Actions repeats it on PHP 8.0 through 8.3.
 
 ## Coding Style & Naming Conventions
 
-Follow WPCS and WordPress security practices; use PSR-12 only when compatible. Preserve LF endings and use tabs for PHP indentation. Prefix classes with `WPWM_`, functions/options with `wpwm_`, and public hooks with `wp_warranty_`; use text domain `wp-warranty-manager`. Prefer focused methods, early returns, strict comparisons, core APIs, and PHPDoc for public methods. Use `WP_Error` for suitable expected failures; never silently ignore errors.
+Follow WPCS and WordPress security practices; use PSR-12 only when compatible. Preserve LF endings and use tabs for PHP indentation. Prefix classes and constants with `WCMGR_`, functions/options/hooks with `wcmgr_`, CSS/JS identifiers with `wcmgr-`, and use text domain `warranty-code-manager`. Prefer focused methods, early returns, strict comparisons, core APIs, and PHPDoc for public methods. Use `WP_Error` for suitable expected failures; never silently ignore errors.
 
 Validate and sanitize request data; escape at output. Require nonces and capabilities for writes. Keep admin HTML in partials. Use `$wpdb->prepare()` or CRUD helpers for SQL, avoiding repeated queries and queries inside loops.
 

@@ -1,0 +1,73 @@
+/**
+ * Admin styles for Warranty Code Manager.
+ */
+
+/* ── Filter bar ──────────────────────────────────────────────────── */
+.wcmgr-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.wcmgr-filter-summary {
+    color: #666;
+    font-size: 13px;
+}
+
+/* ── Status badges ───────────────────────────────────────────────── */
+.wcmgr-status {
+    font-weight: bold;
+}
+
+.wcmgr-status--active {
+    color: green;
+}
+
+.wcmgr-status--inactive {
+    color: #999;
+}
+
+/* ── Table empty state ───────────────────────────────────────────── */
+.wcmgr-empty {
+    text-align: center;
+    padding: 20px;
+}
+
+/* ── Action column ───────────────────────────────────────────────── */
+.wcmgr-btn-edit {
+    margin-left: 5px;
+}
+
+.wcmgr-btn-delete {
+    color: #cc0000;
+}
+
+.wcmgr-delete-form {
+    display: inline;
+}
+
+/* ── Pagination ──────────────────────────────────────────────────── */
+.wcmgr-pagination {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.wcmgr-pagination__ellipsis {
+    padding: 4px 8px;
+}
+
+.wcmgr-pagination__summary {
+    color: #666;
+    font-size: 13px;
+    margin-right: 10px;
+}
+
+/* ── Edit page ───────────────────────────────────────────────────── */
+.wcmgr-notice--top {
+    margin-top: 15px;
+}
