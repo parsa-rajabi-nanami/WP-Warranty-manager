@@ -46,12 +46,6 @@ A WordPress plugin for managing and activating product warranty codes. Administr
 3. Activate the plugin from **WordPress Admin → Plugins**.
 4. The database table is created automatically on activation.
 
-### Using WP-CLI
-
-```bash
-wp plugin install https://github.com/parsa-rajabi-nanami/WP-Warranty-manager/archive/refs/heads/main.zip --activate
-```
-
 ---
 
 ## Usage
