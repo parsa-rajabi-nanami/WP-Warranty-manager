@@ -47,12 +47,6 @@ The code is marked active, the activation time is recorded, and the expiration d
 = Does it support multiple products or custom warranty durations? =
 Not yet. Each row stores a single warranty code, and the warranty period is fixed at one year from activation. These are possible future enhancements.
 
-== Screenshots ==
-
-1. Admin warranty management table (list, search, filter)
-2. Admin CSV import screen
-3. Front-end warranty activation form
-
 == Changelog ==
 
 = 1.0.0 =
