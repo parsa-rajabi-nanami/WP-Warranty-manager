@@ -16,11 +16,13 @@ Register actions, filters, and shortcodes through the loader methods in `include
 
 There is no build step. Develop on WordPress 6.0+ and PHP 8.0+ by placing `warranty-code-manager/` in `wp-content/plugins/` and activating it.
 
+### PHP Syntax Linting
+
+On Linux, macOS, or WSL, run:
+
 ```bash
 find warranty-code-manager -name "*.php" -exec php -l {} \;
 ```
-
-Run this before every push; GitHub Actions repeats it on PHP 8.0 through 8.3.
 
 ## Coding Style & Naming Conventions
 

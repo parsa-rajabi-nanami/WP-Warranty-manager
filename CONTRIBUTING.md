@@ -49,7 +49,7 @@ Open a **Feature Request** using the issue template and describe the use case cl
 ### Quick start
 
 ```bash
-git clone https://github.com/parsa-rajabi-nanami/WP-Warranty-manager.git Warranty-Code-Manager
+git clone git@github.com:parsa-rajabi-nanami/WP-Warranty-manager.git
 cd Warranty-Code-Manager
 ```
 
@@ -60,12 +60,6 @@ The setup script checks prerequisites and prints next steps for your chosen loca
 1. Copy `warranty-code-manager/` into `wp-content/plugins/` of a local WordPress install.
 2. Activate the plugin from the WordPress admin.
 3. The `{prefix}warranty_codes` database table is created automatically.
-
-### Running the linter
-
-```bash
-find warranty-code-manager -name "*.php" -exec php -l {} \;
-```
 
 ---
 
@@ -102,7 +96,6 @@ docs: update CSV import instructions
 
 ## Pull request checklist
 
-- [ ] PHP syntax passes: `find warranty-code-manager -name "*.php" -exec php -l {} \;`
 - [ ] All new hooks wired through `class-wcmgr.php`, not added directly in feature classes
 - [ ] New SQL uses `$wpdb->prepare()` / insert / update / delete
 - [ ] New admin actions include `current_user_can('manage_options')` + `check_admin_referer()`
@@ -125,10 +118,3 @@ Key conventions used in this codebase:
 | Hook / action names | `wcmgr_*` |
 | Text domain | `warranty-code-manager` |
 | ABSPATH guard | Every PHP entry file |
-
-Optionally install [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) with the [WordPress standard](https://github.com/WordPress/WordPress-Coding-Standards) to check locally:
-
-```bash
-composer require --dev squizlabs/php_codesniffer wp-coding-standards/wpcs
-./vendor/bin/phpcs --standard=WordPress warranty-code-manager/
-```

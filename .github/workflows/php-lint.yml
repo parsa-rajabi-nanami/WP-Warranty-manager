@@ -4,15 +4,18 @@ on:
   push:
     branches: [main, develop]
     paths:
+      - "warranty-code-manager/*.php"
       - "warranty-code-manager/**/*.php"
   pull_request:
     paths:
+      - "warranty-code-manager/*.php"
       - "warranty-code-manager/**/*.php"
 
 jobs:
   lint:
     name: PHP ${{ matrix.php }} syntax check
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:

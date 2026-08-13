@@ -3,7 +3,7 @@ Contributors: parsa-rajabi-nanami
 Tags: warranty, warranty-code, serial-number, product-registration, csv-import
 Requires at least: 6.0
 Requires PHP: 8.0
-Tested up to: 7.0
+Tested up to: 6.9
 Stable tag: 1.0.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
@@ -31,10 +31,20 @@ It tracks, per code:
 
 == Installation ==
 
-1. Upload the plugin files to the `/wp-content/plugins/warranty-code-manager/` directory
-2. Activate the plugin through the 'Plugins' menu in WordPress (this creates the warranty codes database table)
-3. Open the **Warranty Code Manager** menu in the admin dashboard and upload a CSV of warranty codes (use the **Download a sample CSV** link for a correctly formatted template)
-4. Add the `[warranty_form]` shortcode to any page so customers can activate their codes
+=== From WordPress Admin ===
+
+1. Go to **Plugins → Add New Plugin** in your WordPress dashboard.
+2. Click **Upload Plugin** and select the plugin ZIP file.
+3. Click **Install Now**, then **Activate Plugin**.
+4. The warranty codes database table is created automatically on activation.
+5. Open the **Warranty Code Manager** menu and upload your warranty codes CSV.
+6. Add the `[warranty_form]` shortcode to any page where customers should activate their warranty.
+
+=== Manual Installation ===
+
+1. Upload the `warranty-code-manager` directory to `/wp-content/plugins/`.
+2. Activate the plugin through the **Plugins** menu.
+3. The warranty codes database table is created automatically on activation.
 
 == Frequently Asked Questions ==
 
@@ -65,10 +75,4 @@ First public release of Warranty Code Manager.
 
 This plugin is licensed under the MIT License.
 
-Copyright (c) 2026 parsa rajabi
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software...
+Copyright (c) 2026 Parsa Rajabi

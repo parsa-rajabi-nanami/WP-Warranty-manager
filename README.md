@@ -36,13 +36,17 @@ A WordPress plugin for managing and activating product warranty codes. Administr
 
 ## Installation
 
+### From WordPress Admin
+1. Download the latest plugin ZIP file from the repository releases.
+2. In WordPress Admin, go to **Plugins → Add New Plugin**.
+3. Click Upload Plugin.
+4. Select the file and click Install Now.
+5. After installation, click Activate Plugin.
+
 ### From source
 
 1. Clone or download this repository.
-2. Copy the `warranty-code-manager/` subdirectory into your WordPress install:
-   ```
-   wp-content/plugins/warranty-code-manager/
-   ```
+2. Copy the `warranty-code-manager/` subdirectory into your WordPress install: **wp-content/plugins/warranty-code-manager/**
 3. Activate the plugin from **WordPress Admin → Plugins**.
 4. The database table is created automatically on activation.
 
@@ -130,15 +134,8 @@ See [SECURITY.md](SECURITY.md) to report a vulnerability.
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide. Quick start:
 
 ```bash
-git clone https://github.com/parsa-rajabi-nanami/WP-Warranty-manager.git Warranty-Code-Manager
+git clone git@github.com:parsa-rajabi-nanami/WP-Warranty-manager.git
 cd Warranty-Code-Manager
-```
-
-### Linting
-
-```bash
-# PHP syntax check
-find warranty-code-manager -name "*.php" -exec php -l {} \;
 ```
 
 ---

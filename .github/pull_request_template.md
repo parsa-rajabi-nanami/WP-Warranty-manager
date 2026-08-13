@@ -53,7 +53,6 @@ Conditional checklist items may be checked when they do not apply to the change.
 
 ### Additional checks
 
-- [ ] PHP syntax passes: `find warranty-code-manager -name "*.php" -exec php -l {} \;`
 - [ ] I tested the affected flow as both an administrator and a front-end user, where applicable
 - [ ] I tested relevant edge cases and failure paths
 

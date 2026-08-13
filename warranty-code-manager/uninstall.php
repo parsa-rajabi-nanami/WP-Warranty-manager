@@ -31,6 +31,3 @@ global $wpdb;
 $wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}warranty_codes"); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 delete_option('wcmgr_db_version');
-
-// Remove the pre-rename database version option left by existing installations.
-delete_option('wpwm_db_version');
