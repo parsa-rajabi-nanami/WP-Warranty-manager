@@ -136,8 +136,8 @@ class WCMGR_Admin {
      */
     public function admin_menu() {
         add_menu_page(
-            __( 'Warranty Code Manager', 'warranty-code-manager' ),
-            __( 'Warranty Code Manager', 'warranty-code-manager' ),
+            __( 'Warranty Manager', 'warranty-code-manager' ),
+            __( 'Warranty Manager', 'warranty-code-manager' ),
             'manage_options',
             'warranty-manager',
             array( $this, 'admin_page' ),

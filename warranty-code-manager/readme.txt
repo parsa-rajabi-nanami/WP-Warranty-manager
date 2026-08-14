@@ -3,7 +3,7 @@ Contributors: parsa-rajabi-nanami
 Tags: warranty, warranty-code, serial-number, product-registration, csv-import
 Requires at least: 6.0
 Requires PHP: 8.0
-Tested up to: 6.9
+Tested up to: 7.0
 Stable tag: 1.0.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
