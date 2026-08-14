@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
-## [Unreleased]
+## [1.0.0] - 2026-08-14
 
 ### Changed
 - Renamed the plugin to **Warranty Code Manager** with the plugin slug and text domain `warranty-code-manager` to comply with WordPress.org trademark requirements
@@ -31,4 +31,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Sanitized read-only admin parameters, escaped pagination output, and prefixed partial-scope variables
 - Prepared admin search/filter queries in one pass and documented intentional custom-table database operations
 
-[Unreleased]: https://github.com/parsa-rajabi-nanami/WP-Warranty-manager/commits/develop
+## [Unreleased]
+
+### Changed
+
+### Added
+
+### Fixed
+
+[Unreleased]: https://github.com/parsa-rajabi-nanami/WP-Warranty-manager/compare/v1.0.0...develop
+[1.0.0]: https://github.com/parsa-rajabi-nanami/WP-Warranty-manager/releases/tag/v1.0.0
